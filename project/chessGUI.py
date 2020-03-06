@@ -1,4 +1,5 @@
 import pygame
+from Rules import Rules
 
 pygame.init()
 
@@ -7,6 +8,8 @@ gameDisplay = pygame.display.set_mode((1000,500),0,32)
 pygame.display.set_caption("Chess solver")
 gameDisplay.fill((0,0,0))
 clock = pygame.time.Clock()
+
+whitePlayer = True
 
 negReyImg = pygame.transform.scale(pygame.image.load("images//NR.png"),(50,50))
 blaReyImg = pygame.transform.scale(pygame.image.load("images//BR.png"),(50,50))
@@ -22,6 +25,9 @@ negPeoImg = pygame.transform.scale(pygame.image.load("images//NP.png"),(50,50))
 blaPeoImg = pygame.transform.scale(pygame.image.load("images//BP.png"),(50,50))
 brownSquare = pygame.image.load("images//brown_square.png")
 whiteSquare = pygame.image.load("images//white_square.png")
+
+blackPieces = [negReyImg,negTorImg,negCabImg,negAlfImg,negDamImg,negPeoImg]
+whitePieces = [blaReyImg,blaTorImg,blaCabImg,blaAlfImg,blaDamImg,blaPeoImg]
 
 gameMatrix =  [[(50,50),(100,50),(150,50),(200,50),(250,50),(300,50),(350,50),(400,50)],
               [(50,100),(100,100),(150,100),(200,100),(250,100),(300,100),(350,100),(400,100)],
@@ -111,12 +117,29 @@ def printM(matrix):
                 print("0", end=" ")
             else:
                 print("1",end=" ")
-        print()    
+        print()
+
+
+def spriteName(sprite):
+    if sprite==negReyImg or sprite==blaReyImg:
+        return "R"
+    elif sprite==negTorImg or sprite==blaTorImg:
+        return "T"
+    elif sprite==negCabImg or sprite==blaCabImg:
+        return "C"
+    elif sprite==negAlfImg or sprite==blaAlfImg:
+        return "A"
+    elif sprite==negDamImg or sprite==blaDamImg:
+        return "D"
+    elif sprite==negPeoImg or sprite==blaPeoImg:
+        return "P"
+    else:
+        return ""
 """
 ciclo de ejecucion
 """
 def execute():
-    global piecesMatrix
+    global piecesMatrix,whitePlayer
     chatched= False #permite saber si ya ha elegido una pieza
     sprite=""
     done = False
@@ -140,9 +163,20 @@ def execute():
                         iniX = coorX
                         iniY = coorY
                         sprite=piecesMatrix[loc[0]][loc[1]]
+                        if(sprite==negPeoImg):
+                            print("Peon")
                         if(sprite!=""):
-                            chatched=True
+                            if(whitePlayer):
+                                if(sprite in whitePieces):
+                                    chatched=True
+                            else:
+                                if(sprite in blackPieces):
+                                    chatched=True                                
                     else:
+                        
+                        if(Rules.IsLegalMove(spriteName(sprite),piecesMatrix,(iniPosI,iniPosJ),(loc[0],loc[1]))):
+                           print("SIII")
+
                         piecesMatrix[iniPosI][iniPosJ]=""
                         moveAnimation(sprite,iniX,iniY,coorX,coorY,piecesMatrix)
                         piecesMatrix[loc[0]][loc[1]]=sprite
@@ -151,6 +185,7 @@ def execute():
                         iniPosI=0
                         iniPosJ=0
                         chatched=False
+                        whitePlayer=not whitePlayer
                     
         printMatrix()
         fill(piecesMatrix)
