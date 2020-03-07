@@ -25,6 +25,7 @@ negPeoImg = pygame.transform.scale(pygame.image.load("images//NP.png"),(50,50))
 blaPeoImg = pygame.transform.scale(pygame.image.load("images//BP.png"),(50,50))
 brownSquare = pygame.image.load("images//brown_square.png")
 whiteSquare = pygame.image.load("images//white_square.png")
+cyanSquare = pygame.image.load("images//cyan_square.png")
 
 blackPieces = [negReyImg,negTorImg,negCabImg,negAlfImg,negDamImg,negPeoImg]
 whitePieces = [blaReyImg,blaTorImg,blaCabImg,blaAlfImg,blaDamImg,blaPeoImg]
@@ -38,6 +39,15 @@ gameMatrix =  [[(50,50),(100,50),(150,50),(200,50),(250,50),(300,50),(350,50),(4
               [(50,350),(100,350),(150,350),(200,350),(250,350),(300,350),(350,350),(400,350)],
               [(50,400),(100,400),(150,400),(200,400),(250,400),(300,400),(350,400),(400,400)]]
 
+spritesMatrix = [["","","","","","","",""],
+                ["","","","","","","",""],
+                ["","","","","","","",""],
+                ["","","","","","","",""],
+                ["","","","","","","",""],
+                ["","","","","","","",""],
+                ["","","","","","","",""],
+                ["","","","","","","",""]]
+
 piecesMatrix = [["","","","","","","",""],
                 ["","","","","","","",""],
                 ["","","","","","","",""],
@@ -47,12 +57,18 @@ piecesMatrix = [["","","","","","","",""],
                 ["","","","","","","",""],
                 ["","","","","","","",""]]
 
-piecesMatrix[0][4] = blaReyImg
-piecesMatrix[6][2] = negReyImg
-piecesMatrix[2][4] = blaPeoImg
-piecesMatrix[0][0] = blaTorImg
-piecesMatrix[5][5] = negDamImg
-piecesMatrix[6][6] = negPeoImg
+spritesMatrix[0][4] = blaReyImg
+spritesMatrix[6][2] = negReyImg
+spritesMatrix[2][4] = blaPeoImg
+spritesMatrix[0][0] = blaTorImg
+spritesMatrix[3][5] = negDamImg
+spritesMatrix[6][6] = negPeoImg
+
+piecesMatrix[0][4] = "br"
+piecesMatrix[6][2] = "nr"
+piecesMatrix[2][4] = "bp"
+piecesMatrix[3][5] = "nd"
+piecesMatrix[6][6] = "np"
 
 #Imprime el tablero de juego
 def printMatrix():
@@ -69,7 +85,7 @@ def printMatrix():
 def fill(matrix):
     for fil in range(8):
         for col in range(8):
-            if piecesMatrix[fil][col]!="":
+            if spritesMatrix[fil][col]!="":
                 gameDisplay.blit(matrix[fil][col],gameMatrix[fil][col])
                 
 #dado cordenadas x y se retorna la posicion
@@ -139,9 +155,10 @@ def spriteName(sprite):
 ciclo de ejecucion
 """
 def execute():
-    global piecesMatrix,whitePlayer
-    chatched= False #permite saber si ya ha elegido una pieza
+    global spritesMatrix,piecesMatrix,whitePlayer
+    catched= False #permite saber si ya ha elegido una pieza
     sprite=""
+    piece =""
     done = False
     iniX =0
     iniY =0
@@ -154,41 +171,44 @@ def execute():
             coorX=roundBy50(pygame.mouse.get_pos()[0])
             coorY=roundBy50(pygame.mouse.get_pos()[1])
             if event.type == pygame.MOUSEBUTTONDOWN:
-            
+                if(event.button == 3):
+                    catched= False
                 loc=buscarIndice(coorX,coorY)    
                 if(loc!=(-1,-1)):
-                    if(not chatched):
+                    if(not catched):
                         iniPosI=loc[0]
                         iniPosJ=loc[1]
                         iniX = coorX
                         iniY = coorY
-                        sprite=piecesMatrix[loc[0]][loc[1]]
-                        if(sprite==negPeoImg):
-                            print("Peon")
+                        sprite= spritesMatrix[loc[0]][loc[1]]
+                        piece = piecesMatrix[loc[0]][loc[1]]
                         if(sprite!=""):
                             if(whitePlayer):
                                 if(sprite in whitePieces):
-                                    chatched=True
+                                    catched=True
                             else:
                                 if(sprite in blackPieces):
-                                    chatched=True                                
+                                    catched=True                                
                     else:
                         
-                        if(Rules.IsLegalMove(spriteName(sprite),piecesMatrix,(iniPosI,iniPosJ),(loc[0],loc[1]))):
-                           print("SIII")
-
-                        piecesMatrix[iniPosI][iniPosJ]=""
-                        moveAnimation(sprite,iniX,iniY,coorX,coorY,piecesMatrix)
-                        piecesMatrix[loc[0]][loc[1]]=sprite
+                        if(Rules.IsLegalMove(piece,piecesMatrix,(iniPosI,iniPosJ),(loc[0],loc[1]))):
+                           print("sii")
+                        spritesMatrix[iniPosI][iniPosJ]=""
+                        moveAnimation(sprite,iniX,iniY,coorX,coorY,spritesMatrix)
+                        spritesMatrix[loc[0]][loc[1]]=sprite
+                        piecesMatrix[loc[0]][loc[1]]=piece
                         iniX = 0
                         iniY = 0
                         iniPosI=0
                         iniPosJ=0
-                        chatched=False
+                        catched=False
                         whitePlayer=not whitePlayer
                     
         printMatrix()
-        fill(piecesMatrix)
+        if(catched):
+            gameDisplay.blit(cyanSquare,(iniX,iniY));
+            
+        fill(spritesMatrix)
         pygame.display.update()
         clock.tick(30)
 

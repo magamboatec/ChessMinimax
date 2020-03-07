@@ -1,5 +1,7 @@
 import pygame
 
+whitePieces = ["bp","br","bd","ba","bc","bt"]
+blackPieces = ["np","nr","nd","na","nc","nt"]
 
 class Rules:
 
@@ -10,11 +12,10 @@ class Rules:
         toSquare_c = toTuple[1]
         fromPiece = board[fromSquare_r][fromSquare_c]
         toPiece = board[toSquare_r][toSquare_c]
-
+        
         if fromTuple == toTuple:
             return False
-        if sprite == "P":
-            print("NegPeo")
+        if sprite == "bp":
             if toSquare_r == fromSquare_r+1 and toSquare_c == fromSquare_c and toPiece == "":
                 #moving forward one space
                 return True
@@ -22,12 +23,11 @@ class Rules:
                     #black pawn on starting row can move forward 2 spaces if there is no one directly ahead
                    # if self.IsClearPath(board,fromTuple,toTuple):
                 return True
-            #if toSquare_r == fromSquare_r+1 and (toSquare_c == fromSquare_c+1 or toSquare_c == fromSquare_c-1) and enemyColor in toPiece:
+            if toSquare_r == fromSquare_r+1 and (toSquare_c == fromSquare_c+1 or toSquare_c == fromSquare_c-1) and (toPiece in blackPieces):
                 #attacking
-             #   return True
+                return True
              
-        elif (sprite == "P"):
-            print("BlaPeo")
+        elif (sprite == "np"):
             if toSquare_r == fromSquare_r-1 and toSquare_c == fromSquare_c and toPiece == "":
                 #moving forward one space
                 return True
@@ -35,8 +35,7 @@ class Rules:
                 #black pawn on starting row can move forward 2 spaces if there is no one directly ahead
                    # if self.IsClearPath(board,fromTuple,toTuple):
                 return True
-            #if toSquare_r == fromSquare_r-1 and (toSquare_c == fromSquare_c+1 or toSquare_c == fromSquare_c-1) and enemyColor in toPiece:
-                    #attacking
-             #       return True
+            if toSquare_r == fromSquare_r-1 and (toSquare_c == fromSquare_c+1 or toSquare_c == fromSquare_c-1) and (toPiece in whitePieces):
+                return True
 
         return False #if none of the other "True"s are hit above
