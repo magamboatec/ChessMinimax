@@ -109,7 +109,7 @@ class Rules:
         elif "br" in fromPiece:
             col_diff = toSquare_c - fromSquare_c
             row_diff = toSquare_r - fromSquare_r
-            if toPiece == "" or ( toPiece in whitePieces):
+            if toPiece == "" or ( toPiece in blackPieces):
                 if abs(col_diff) == 1 and abs(row_diff) == 0:
                     return True
                 if abs(col_diff) == 0 and abs(row_diff) == 1:

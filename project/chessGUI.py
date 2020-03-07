@@ -4,7 +4,7 @@ from Rules import Rules
 pygame.init()
 
 blackColor = (0,0,0)
-gameDisplay = pygame.display.set_mode((1000,500),0,32)
+gameDisplay = pygame.display.set_mode((1200,750),0,32)
 pygame.display.set_caption("Chess solver")
 gameDisplay.fill((0,0,0))
 clock = pygame.time.Clock()
@@ -12,33 +12,34 @@ rules = Rules()
 
 whitePlayer = True
 
-negReyImg = pygame.transform.scale(pygame.image.load("images//NR.png"),(50,50))
-blaReyImg = pygame.transform.scale(pygame.image.load("images//BR.png"),(50,50))
-negTorImg = pygame.transform.scale(pygame.image.load("images//NT.png"),(50,50))
-blaTorImg = pygame.transform.scale(pygame.image.load("images//BT.png"),(50,50))
-negCabImg = pygame.transform.scale(pygame.image.load("images//NC.png"),(50,50))
-blaCabImg = pygame.transform.scale(pygame.image.load("images//BC.png"),(50,50))
-negAlfImg = pygame.transform.scale(pygame.image.load("images//NA.png"),(50,50))
-blaAlfImg = pygame.transform.scale(pygame.image.load("images//BA.png"),(50,50))
-negDamImg = pygame.transform.scale(pygame.image.load("images//ND.png"),(50,50))
-blaDamImg = pygame.transform.scale(pygame.image.load("images//BD.png"),(50,50))
-negPeoImg = pygame.transform.scale(pygame.image.load("images//NP.png"),(50,50))
-blaPeoImg = pygame.transform.scale(pygame.image.load("images//BP.png"),(50,50))
-brownSquare = pygame.image.load("images//brown_square.png")
-whiteSquare = pygame.image.load("images//white_square.png")
-cyanSquare = pygame.image.load("images//cyan_square.png")
+negReyImg = pygame.transform.scale(pygame.image.load("images//NR.png"),(75,75))
+blaReyImg = pygame.transform.scale(pygame.image.load("images//BR.png"),(75,75))
+negTorImg = pygame.transform.scale(pygame.image.load("images//NT.png"),(75,75))
+blaTorImg = pygame.transform.scale(pygame.image.load("images//BT.png"),(75,75))
+negCabImg = pygame.transform.scale(pygame.image.load("images//NC.png"),(75,75))
+blaCabImg = pygame.transform.scale(pygame.image.load("images//BC.png"),(75,75))
+negAlfImg = pygame.transform.scale(pygame.image.load("images//NA.png"),(75,75))
+blaAlfImg = pygame.transform.scale(pygame.image.load("images//BA.png"),(75,75))
+negDamImg = pygame.transform.scale(pygame.image.load("images//ND.png"),(75,75))
+blaDamImg = pygame.transform.scale(pygame.image.load("images//BD.png"),(75,75))
+negPeoImg = pygame.transform.scale(pygame.image.load("images//NP.png"),(60,60))
+blaPeoImg = pygame.transform.scale(pygame.image.load("images//BP.png"),(60,60))
+brownSquare = pygame.transform.scale(pygame.image.load("images//brown_square.jpg"),(75,75))
+whiteSquare = pygame.transform.scale(pygame.image.load("images//white_square.jpg"),(75,75))
+cyanSquare = pygame.transform.scale(pygame.image.load("images//blue_square.jpg"),(75,75))
+bordeImg = pygame.transform.scale(pygame.image.load("images//borde.png"),(690,690))
 
 blackPieces = [negReyImg,negTorImg,negCabImg,negAlfImg,negDamImg,negPeoImg]
 whitePieces = [blaReyImg,blaTorImg,blaCabImg,blaAlfImg,blaDamImg,blaPeoImg]
 
-gameMatrix =  [[(50,50),(100,50),(150,50),(200,50),(250,50),(300,50),(350,50),(400,50)],
-              [(50,100),(100,100),(150,100),(200,100),(250,100),(300,100),(350,100),(400,100)],
-              [(50,150),(100,150),(150,150),(200,150),(250,150),(300,150),(350,150),(400,150)],
-              [(50,200),(100,200),(150,200),(200,200),(250,200),(300,200),(350,200),(400,200)],
-              [(50,250),(100,250),(150,250),(200,250),(250,250),(300,250),(350,250),(400,250)],
-              [(50,300),(100,300),(150,300),(200,300),(250,300),(300,300),(350,300),(400,300)],
-              [(50,350),(100,350),(150,350),(200,350),(250,350),(300,350),(350,350),(400,350)],
-              [(50,400),(100,400),(150,400),(200,400),(250,400),(300,400),(350,400),(400,400)]]
+gameMatrix =  [[(75,75),(150,75),(225,75),(300,75),(375,75),(450,75),(525,75),(600,75)],
+              [(75,150),(150,150),(225,150),(300,150),(375,150),(450,150),(525,150),(600,150)],
+              [(75,225),(150,225),(225,225),(300,225),(375,225),(450,225),(525,225),(600,225)],
+              [(75,300),(150,300),(225,300),(300,300),(375,300),(450,300),(525,300),(600,300)],
+              [(75,375),(150,375),(225,375),(300,375),(375,375),(450,375),(525,375),(600,375)],
+              [(75,450),(150,450),(225,450),(300,450),(375,450),(450,450),(525,450),(600,450)],
+              [(75,525),(150,525),(225,525),(300,525),(375,525),(450,525),(525,525),(600,525)],
+              [(75,600),(150,600),(225,600),(300,600),(375,600),(450,600),(525,600),(600,600)]]
 
 spritesMatrix = [["","","","","","","",""],
                 ["","","","","","","",""],
@@ -59,6 +60,7 @@ piecesMatrix = [["","","","","","","",""],
                 ["","","","","","","",""]]
 
 spritesMatrix[0][4] = blaReyImg
+spritesMatrix[1][4] = blaAlfImg
 spritesMatrix[6][2] = negReyImg
 spritesMatrix[2][4] = blaPeoImg
 spritesMatrix[0][0] = blaTorImg
@@ -67,6 +69,7 @@ spritesMatrix[6][6] = negPeoImg
 spritesMatrix[1][1] = negCabImg
 
 piecesMatrix[0][4] = "br"
+piecesMatrix[1][4] = "ba"
 piecesMatrix[6][2] = "nr"
 piecesMatrix[2][4] = "bp"
 piecesMatrix[3][5] = "nd"
@@ -74,6 +77,8 @@ piecesMatrix[6][6] = "np"
 piecesMatrix[0][0] = "bt"
 piecesMatrix[1][1] = "nc"
 
+gameDisplay.blit(pygame.image.load("images//fondo.jpg"),(0,0))
+gameDisplay.blit(bordeImg,(30,30))
 
 #Imprime el tablero de juego
 def printMatrix():
@@ -91,7 +96,10 @@ def fill(matrix):
     for fil in range(8):
         for col in range(8):
             if spritesMatrix[fil][col]!="":
-                gameDisplay.blit(matrix[fil][col],gameMatrix[fil][col])
+                if(spritesMatrix[fil][col]==negPeoImg or spritesMatrix[fil][col]==blaPeoImg):
+                    gameDisplay.blit(matrix[fil][col],(gameMatrix[fil][col][0]+10,gameMatrix[fil][col][1]+15))
+                else:    
+                    gameDisplay.blit(matrix[fil][col],gameMatrix[fil][col])
                 
 #dado cordenadas x y se retorna la posicion
 #de la piesa en la matriz
@@ -102,9 +110,9 @@ def buscarIndice(xIn,yIn):
                 return (fil,col)
     return (-1,-1)
 
-#redondea al multiplo de 50 inferior
-def roundBy50(x):
-    return int(x) - int(x) % 50
+#redondea al multiplo de 75 inferior
+def roundBy75(x):
+    return int(x) - int(x) % 75
 
 def moveAnimation(sprite,x,y,xMeta,yMeta,tempMatrix):
     count = 0
@@ -114,22 +122,23 @@ def moveAnimation(sprite,x,y,xMeta,yMeta,tempMatrix):
 #    print("meta:(",xMeta,yMeta,")")
     while x!=xMeta or y!=yMeta:
         if x<xMeta:
-            x+=10
+            x+=5
         elif x>xMeta:
-            x-=10
+            x-=5
             
         if y<yMeta:
-            y+=10
+            y+=5
         elif y>yMeta:
-            y-=10
+            y-=5
         printMatrix()
         fill(tempMatrix)
-        gameDisplay.blit(sprite,(x,y))
+        if(y<525):
+            gameDisplay.blit(sprite,(x+7,y+7))
+        else:
+            gameDisplay.blit(sprite,(x,y))
         pygame.display.update()
-        clock.tick(30)
+        clock.tick(60)
         count+=1
-        if count>100:
-            break
         
 def printM(matrix):
     for i in matrix:
@@ -173,8 +182,8 @@ def execute():
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 done = True
-            coorX=roundBy50(pygame.mouse.get_pos()[0])
-            coorY=roundBy50(pygame.mouse.get_pos()[1])
+            coorX=roundBy75(pygame.mouse.get_pos()[0])
+            coorY=roundBy75(pygame.mouse.get_pos()[1])
             if event.type == pygame.MOUSEBUTTONDOWN:
                 if(event.button == 3):
                     catched= False
