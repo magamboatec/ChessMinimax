@@ -5,37 +5,169 @@ blackPieces = ["np","nr","nd","na","nc","nt"]
 
 class Rules:
 
-    def IsLegalMove(sprite,board,fromTuple,toTuple):
+    def IsLegalMove(self,sprite,board,fromTuple,toTuple):
         fromSquare_r = fromTuple[0]
         fromSquare_c = fromTuple[1]
         toSquare_r = toTuple[0]
         toSquare_c = toTuple[1]
         fromPiece = board[fromSquare_r][fromSquare_c]
         toPiece = board[toSquare_r][toSquare_c]
-        
         if fromTuple == toTuple:
             return False
         if sprite == "bp":
             if toSquare_r == fromSquare_r+1 and toSquare_c == fromSquare_c and toPiece == "":
-                #moving forward one space
                 return True
             if fromSquare_r == 1 and toSquare_r == fromSquare_r+2 and toSquare_c == fromSquare_c and toPiece == "":
-                    #black pawn on starting row can move forward 2 spaces if there is no one directly ahead
-                   # if self.IsClearPath(board,fromTuple,toTuple):
-                return True
+                if self.IsClearPath(board,fromTuple,toTuple):
+                    return True
             if toSquare_r == fromSquare_r+1 and (toSquare_c == fromSquare_c+1 or toSquare_c == fromSquare_c-1) and (toPiece in blackPieces):
-                #attacking
                 return True
              
         elif (sprite == "np"):
             if toSquare_r == fromSquare_r-1 and toSquare_c == fromSquare_c and toPiece == "":
-                #moving forward one space
                 return True
             if fromSquare_r == 6 and toSquare_r == fromSquare_r-2 and toSquare_c == fromSquare_c and toPiece == "":
-                #black pawn on starting row can move forward 2 spaces if there is no one directly ahead
-                   # if self.IsClearPath(board,fromTuple,toTuple):
-                return True
+                if self.IsClearPath(board,fromTuple,toTuple):
+                    return True
             if toSquare_r == fromSquare_r-1 and (toSquare_c == fromSquare_c+1 or toSquare_c == fromSquare_c-1) and (toPiece in whitePieces):
                 return True
+            
+        elif (sprite == "bt"):
+            if (toSquare_r == fromSquare_r or toSquare_c == fromSquare_c) and (toPiece == "" or (toPiece in blackPieces)):
+                if self.IsClearPath(board,fromTuple,toTuple):
+                    return True
+        elif (sprite == "nt"):
+            if (toSquare_r == fromSquare_r or toSquare_c == fromSquare_c) and (toPiece == "" or (toPiece in whitePieces)):
+                if self.IsClearPath(board,fromTuple,toTuple):
+                    return True;
+                
+        elif "bc" in fromPiece:
+            col_diff = toSquare_c - fromSquare_c
+            row_diff = toSquare_r - fromSquare_r
+            if toPiece == "" or toPiece in blackPieces:
+                if col_diff == 1 and row_diff == -2:
+                    return True
+                if col_diff == 2 and row_diff == -1:
+                    return True
+                if col_diff == 2 and row_diff == 1:
+                    return True
+                if col_diff == 1 and row_diff == 2:
+                    return True
+                if col_diff == -1 and row_diff == 2:
+                    return True
+                if col_diff == -2 and row_diff == 1:
+                    return True
+                if col_diff == -2 and row_diff == -1:
+                    return True
+                if col_diff == -1 and row_diff == -2:
+                    return True
+        elif "nc" in fromPiece:
+            col_diff = toSquare_c - fromSquare_c
+            row_diff = toSquare_r - fromSquare_r
+            if toPiece == "" or toPiece in whitePieces:
+                if col_diff == 1 and row_diff == -2:
+                    return True
+                if col_diff == 2 and row_diff == -1:
+                    return True
+                if col_diff == 2 and row_diff == 1:
+                    return True
+                if col_diff == 1 and row_diff == 2:
+                    return True
+                if col_diff == -1 and row_diff == 2:
+                    return True
+                if col_diff == -2 and row_diff == 1:
+                    return True
+                if col_diff == -2 and row_diff == -1:
+                    return True
+                if col_diff == -1 and row_diff == -2:
+                    return True
 
-        return False #if none of the other "True"s are hit above
+        elif "ba" in fromPiece:
+            if ( abs(toSquare_r - fromSquare_r) == abs(toSquare_c - fromSquare_c) ) and (toPiece == "" or ( toPiece in blackPieces)):
+                if self.IsClearPath(board,fromTuple,toTuple):
+                    return True
+        elif "na" in fromPiece:
+            if ( abs(toSquare_r - fromSquare_r) == abs(toSquare_c - fromSquare_c) ) and (toPiece == "" or ( toPiece in whitePieces)):
+                if self.IsClearPath(board,fromTuple,toTuple):
+                    return True
+                
+        elif "bd" in fromPiece:
+            if (toSquare_r == fromSquare_r or toSquare_c == fromSquare_c) and (toPiece == "" or (toPiece in blackPieces)):
+                if self.IsClearPath(board,fromTuple,toTuple):
+                    return True
+            if ( abs(toSquare_r - fromSquare_r) == abs(toSquare_c - fromSquare_c) ) and (toPiece == "" or ( toPiece in blackPieces)):
+                if self.IsClearPath(board,fromTuple,toTuple):
+                    return True
+        elif "nd" in fromPiece:
+            if (toSquare_r == fromSquare_r or toSquare_c == fromSquare_c) and (toPiece == "" or (toPiece in whitePieces)):
+                if self.IsClearPath(board,fromTuple,toTuple):
+                    return True
+            if ( abs(toSquare_r - fromSquare_r) == abs(toSquare_c - fromSquare_c) ) and (toPiece == "" or ( toPiece in whitePieces)):
+                if self.IsClearPath(board,fromTuple,toTuple):
+                    return True
+
+        elif "br" in fromPiece:
+            col_diff = toSquare_c - fromSquare_c
+            row_diff = toSquare_r - fromSquare_r
+            if toPiece == "" or ( toPiece in whitePieces):
+                if abs(col_diff) == 1 and abs(row_diff) == 0:
+                    return True
+                if abs(col_diff) == 0 and abs(row_diff) == 1:
+                    return True
+                if abs(col_diff) == 1 and abs(row_diff) == 1:
+                    return True            
+        elif "nr" in fromPiece:
+            col_diff = toSquare_c - fromSquare_c
+            row_diff = toSquare_r - fromSquare_r
+            if toPiece == "" or ( toPiece in whitePieces):
+                if abs(col_diff) == 1 and abs(row_diff) == 0:
+                    return True
+                if abs(col_diff) == 0 and abs(row_diff) == 1:
+                    return True
+                if abs(col_diff) == 1 and abs(row_diff) == 1:
+                    return True                 
+        else:
+            return False
+
+    def IsClearPath(self,board,fromTuple,toTuple):
+        #Return true if there is nothing in a straight line between fromTuple and toTuple, non-inclusive
+        #Direction could be +/- vertical, +/- horizontal, +/- diagonal
+        fromSquare_r = fromTuple[0]
+        fromSquare_c = fromTuple[1]
+        toSquare_r = toTuple[0]
+        toSquare_c = toTuple[1]
+        fromPiece = board[fromSquare_r][fromSquare_c]
+
+        if abs(fromSquare_r - toSquare_r) <= 1 and abs(fromSquare_c - toSquare_c) <= 1:
+            #The base case: just one square apart
+            return True
+        else:
+            if toSquare_r > fromSquare_r and toSquare_c == fromSquare_c:
+                #vertical +
+                newTuple = (fromSquare_r+1,fromSquare_c)
+            elif toSquare_r < fromSquare_r and toSquare_c == fromSquare_c:
+                #vertical -
+                newTuple = (fromSquare_r-1,fromSquare_c)
+            elif toSquare_r == fromSquare_r and toSquare_c > fromSquare_c:
+                #horizontal +
+                newTuple = (fromSquare_r,fromSquare_c+1)
+            elif toSquare_r == fromSquare_r and toSquare_c < fromSquare_c:
+                #horizontal -
+                newTuple = (fromSquare_r,fromSquare_c-1)
+            elif toSquare_r > fromSquare_r and toSquare_c > fromSquare_c:
+                #diagonal "SE"
+                newTuple = (fromSquare_r+1,fromSquare_c+1)
+            elif toSquare_r > fromSquare_r and toSquare_c < fromSquare_c:
+                #diagonal "SW"
+                newTuple = (fromSquare_r+1,fromSquare_c-1)
+            elif toSquare_r < fromSquare_r and toSquare_c > fromSquare_c:
+               #diagonal "NE"
+                newTuple = (fromSquare_r-1,fromSquare_c+1)
+            elif toSquare_r < fromSquare_r and toSquare_c < fromSquare_c:
+                #diagonal "NW"
+                newTuple = (fromSquare_r-1,fromSquare_c-1)
+
+        if board[newTuple[0]][newTuple[1]] != "":
+            return False
+        else:
+            return self.IsClearPath(board,newTuple,toTuple)

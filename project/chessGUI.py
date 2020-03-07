@@ -8,6 +8,7 @@ gameDisplay = pygame.display.set_mode((1000,500),0,32)
 pygame.display.set_caption("Chess solver")
 gameDisplay.fill((0,0,0))
 clock = pygame.time.Clock()
+rules = Rules()
 
 whitePlayer = True
 
@@ -63,12 +64,16 @@ spritesMatrix[2][4] = blaPeoImg
 spritesMatrix[0][0] = blaTorImg
 spritesMatrix[3][5] = negDamImg
 spritesMatrix[6][6] = negPeoImg
+spritesMatrix[1][1] = negCabImg
 
 piecesMatrix[0][4] = "br"
 piecesMatrix[6][2] = "nr"
 piecesMatrix[2][4] = "bp"
 piecesMatrix[3][5] = "nd"
 piecesMatrix[6][6] = "np"
+piecesMatrix[0][0] = "bt"
+piecesMatrix[1][1] = "nc"
+
 
 #Imprime el tablero de juego
 def printMatrix():
@@ -191,18 +196,18 @@ def execute():
                                     catched=True                                
                     else:
                         
-                        if(Rules.IsLegalMove(piece,piecesMatrix,(iniPosI,iniPosJ),(loc[0],loc[1]))):
-                           print("sii")
-                        spritesMatrix[iniPosI][iniPosJ]=""
-                        moveAnimation(sprite,iniX,iniY,coorX,coorY,spritesMatrix)
-                        spritesMatrix[loc[0]][loc[1]]=sprite
-                        piecesMatrix[loc[0]][loc[1]]=piece
-                        iniX = 0
-                        iniY = 0
-                        iniPosI=0
-                        iniPosJ=0
-                        catched=False
-                        whitePlayer=not whitePlayer
+                        if(rules.IsLegalMove(piece,piecesMatrix,(iniPosI,iniPosJ),(loc[0],loc[1]))):
+                            spritesMatrix[iniPosI][iniPosJ]=""
+                            piecesMatrix[iniPosI][iniPosJ]=""
+                            moveAnimation(sprite,iniX,iniY,coorX,coorY,spritesMatrix)
+                            spritesMatrix[loc[0]][loc[1]]=sprite
+                            piecesMatrix[loc[0]][loc[1]]=piece
+                            iniX = 0
+                            iniY = 0
+                            iniPosI=0
+                            iniPosJ=0
+                            catched=False
+                            whitePlayer=not whitePlayer
                     
         printMatrix()
         if(catched):
