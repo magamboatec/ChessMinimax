@@ -14,22 +14,22 @@ class Rules:
         toPiece = board[toSquare_r][toSquare_c]
         if fromTuple == toTuple:
             return False
-        if sprite == "BP":
+        if sprite == "NP":
             if toSquare_r == fromSquare_r+1 and toSquare_c == fromSquare_c and toPiece == "":
                 return True
             if fromSquare_r == 1 and toSquare_r == fromSquare_r+2 and toSquare_c == fromSquare_c and toPiece == "":
                 if self.IsClearPath(board,fromTuple,toTuple):
                     return True
-            if toSquare_r == fromSquare_r+1 and (toSquare_c == fromSquare_c+1 or toSquare_c == fromSquare_c-1) and (toPiece in blackPieces):
+            if toSquare_r == fromSquare_r+1 and (toSquare_c == fromSquare_c+1 or toSquare_c == fromSquare_c-1) and (toPiece in whitePieces):
                 return True
              
-        elif (sprite == "NP"):
+        elif (sprite == "BP"):
             if toSquare_r == fromSquare_r-1 and toSquare_c == fromSquare_c and toPiece == "":
                 return True
             if fromSquare_r == 6 and toSquare_r == fromSquare_r-2 and toSquare_c == fromSquare_c and toPiece == "":
                 if self.IsClearPath(board,fromTuple,toTuple):
                     return True
-            if toSquare_r == fromSquare_r-1 and (toSquare_c == fromSquare_c+1 or toSquare_c == fromSquare_c-1) and (toPiece in whitePieces):
+            if toSquare_r == fromSquare_r-1 and (toSquare_c == fromSquare_c+1 or toSquare_c == fromSquare_c-1) and (toPiece in blackPieces):
                 return True
             
         elif (sprite == "BT"):

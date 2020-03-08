@@ -1,12 +1,16 @@
 import pygame
 from Rules import Rules
 from ScrollingTextBox import ScrollingTextBox
+from fileManager import FileManager
+import datetime
+
+
 
 pygame.init()
 pygame.mixer.init()
 music=pygame.mixer.music.load("file.mp3")
 catchSound=pygame.mixer.Sound("catch.wav")
-pygame.mixer.music.set_volume(0.05)
+pygame.mixer.music.set_volume(0.1)
 catchSound.set_volume(0.2)
 pygame.mixer.music.play(-1)
 
@@ -21,21 +25,22 @@ whitePlayer = True
 
 negReyImg = pygame.transform.scale(pygame.image.load("images//NR.png"),(75,75))
 blaReyImg = pygame.transform.scale(pygame.image.load("images//BR.png"),(75,75))
-negTorImg = pygame.transform.scale(pygame.image.load("images//NT.png"),(75,75))
-blaTorImg = pygame.transform.scale(pygame.image.load("images//BT.png"),(75,75))
-negCabImg = pygame.transform.scale(pygame.image.load("images//NC.png"),(75,75))
-blaCabImg = pygame.transform.scale(pygame.image.load("images//BC.png"),(75,75))
-negAlfImg = pygame.transform.scale(pygame.image.load("images//NA.png"),(75,75))
-blaAlfImg = pygame.transform.scale(pygame.image.load("images//BA.png"),(75,75))
-negDamImg = pygame.transform.scale(pygame.image.load("images//ND.png"),(75,75))
-blaDamImg = pygame.transform.scale(pygame.image.load("images//BD.png"),(75,75))
-negPeoImg = pygame.transform.scale(pygame.image.load("images//NP.png"),(60,60))
-blaPeoImg = pygame.transform.scale(pygame.image.load("images//BP.png"),(60,60))
+negTorImg = pygame.transform.scale(pygame.image.load("images//NT.png"),(55,55))
+blaTorImg = pygame.transform.scale(pygame.image.load("images//BT.png"),(55,55))
+negCabImg = pygame.transform.scale(pygame.image.load("images//NC.png"),(60,60))
+blaCabImg = pygame.transform.scale(pygame.image.load("images//BC.png"),(60,60))
+negAlfImg = pygame.transform.scale(pygame.image.load("images//NA.png"),(65,65))
+blaAlfImg = pygame.transform.scale(pygame.image.load("images//BA.png"),(65,65))
+negDamImg = pygame.transform.scale(pygame.image.load("images//ND.png"),(68,68))
+blaDamImg = pygame.transform.scale(pygame.image.load("images//BD.png"),(68,68))
+negPeoImg = pygame.transform.scale(pygame.image.load("images//NP.png"),(50,50))
+blaPeoImg = pygame.transform.scale(pygame.image.load("images//BP.png"),(50,50))
 brownSquare = pygame.transform.scale(pygame.image.load("images//brown_square.jpg"),(75,75))
 whiteSquare = pygame.transform.scale(pygame.image.load("images//white_square.jpg"),(75,75))
 cyanSquare = pygame.transform.scale(pygame.image.load("images//blue_square.jpg"),(75,75))
 bordeImg = pygame.transform.scale(pygame.image.load("images//borde.png"),(690,690))
 fondoImg = pygame.image.load("images//fondo.jpg")
+boardImg = pygame.transform.scale(pygame.image.load("images//blackboard.png"),(int(423*1.2),int(595*1.2)))
 
 blackPieces = [negReyImg,negTorImg,negCabImg,negAlfImg,negDamImg,negPeoImg]
 whitePieces = [blaReyImg,blaTorImg,blaCabImg,blaAlfImg,blaDamImg,blaPeoImg]
@@ -67,27 +72,13 @@ piecesMatrix = [["","","","","","","",""],
                 ["","","","","","","",""],
                 ["","","","","","","",""]]
 
-spritesMatrix[0][4] = blaReyImg
-spritesMatrix[1][4] = blaAlfImg
-spritesMatrix[6][2] = negReyImg
-spritesMatrix[2][4] = blaPeoImg
-spritesMatrix[0][0] = blaTorImg
-spritesMatrix[3][5] = negDamImg
-spritesMatrix[6][6] = negPeoImg
-spritesMatrix[1][1] = negCabImg
-
-piecesMatrix[0][4] = "BR"
-piecesMatrix[1][4] = "BA"
-piecesMatrix[6][2] = "NR"
-piecesMatrix[2][4] = "BP"
-piecesMatrix[3][5] = "ND"
-piecesMatrix[6][6] = "NP"
-piecesMatrix[0][0] = "BT"
-piecesMatrix[1][1] = "NC"
 
 gameDisplay.blit(fondoImg,(0,0))
 gameDisplay.blit(bordeImg,(30,30))
+gameDisplay.blit(boardImg,(800,0))
 
+
+log = ""
 movesCount=1
 
 
@@ -96,7 +87,7 @@ def printMessage(message):
     textBox.Add(message)
     textBox.Draw()
     
-textBox = ScrollingTextBox(gameDisplay,850,1100,30,750)
+textBox = ScrollingTextBox(gameDisplay,860,1100,40,750)
 
 def converIndCol(num):
     if num==0:
@@ -136,7 +127,7 @@ def converIndFil(num):
     
         
 def drawMarkets():
-    white = (255, 255, 255)
+    white = (250, 250, 250)
     markersA = ["a","b","c","d","e","f","g","h"]
     markersB = ["8","7","6","5","4","3","2","1"]
     x=39
@@ -146,16 +137,12 @@ def drawMarkets():
         x+=75
         text = font.render(i, True, white)
         textRect = text.get_rect()
-        #textRect.center = (x,60)
-        #gameDisplay.blit(text, textRect)
         textRect.center = (x,737)
         gameDisplay.blit(text, textRect)
     for i in markersB:
         y+=75
         text = font.render(i, True, white)
         textRect = text.get_rect()
-        #textRect.center = (x,60)
-        #gameDisplay.blit(text, textRect)
         textRect.center = (20,y)
         gameDisplay.blit(text, textRect)        
     
@@ -175,11 +162,22 @@ def printMatrix():
 def fill(matrix):
     for fil in range(8):
         for col in range(8):
-            if spritesMatrix[fil][col]!="":
-                if(spritesMatrix[fil][col]==negPeoImg or spritesMatrix[fil][col]==blaPeoImg):
-                    gameDisplay.blit(matrix[fil][col],(gameMatrix[fil][col][0]+10,gameMatrix[fil][col][1]+15))
-                else:    
-                    gameDisplay.blit(matrix[fil][col],gameMatrix[fil][col])
+            sprite=spritesMatrix[fil][col]
+            pos = gameMatrix[fil][col]
+            if sprite!="":
+                if(sprite==negPeoImg or sprite==blaPeoImg):
+                    gameDisplay.blit(sprite,(pos[0]+12,pos[1]+25))
+                elif(sprite==negDamImg or sprite==blaDamImg):    
+                    gameDisplay.blit(sprite,(pos[0]+5,pos[1]+7))
+                elif(sprite==negAlfImg or sprite==blaAlfImg): 
+                    gameDisplay.blit(sprite,(pos[0]+6,pos[1]+10))
+                elif(sprite==negCabImg or sprite==blaCabImg): 
+                    gameDisplay.blit(sprite,(pos[0]+8,pos[1]+15))
+                elif(sprite==negTorImg or sprite==blaTorImg): 
+                    gameDisplay.blit(sprite,(pos[0]+10,pos[1]+20))
+                    
+                else:
+                    gameDisplay.blit(sprite,pos)
       
 #dado cordenadas x y se retorna la posicion
 #de la piesa en la matriz
@@ -198,8 +196,6 @@ def moveAnimation(sprite,x,y,xMeta,yMeta,tempMatrix):
     count = 0
     
     fill(tempMatrix)
-#    print("iniX: ",x," iniY: ",y)
-#    print("meta:(",xMeta,yMeta,")")
     while x!=xMeta or y!=yMeta:
         if x<xMeta:
             x+=5
@@ -229,7 +225,40 @@ def printM(matrix):
                 print("1",end=" ")
         print()
 
-
+def locate(matrix):
+    global piecesMatrix
+    piecesMatrix=matrix
+    sprite = ""
+    for i in range(8):
+        for j in range(8):
+            if piecesMatrix[i][j]=="NR":
+                sprite=negReyImg
+            elif piecesMatrix[i][j]=="BR":
+                sprite=blaReyImg
+            elif piecesMatrix[i][j]=="NT":
+                sprite=negTorImg
+            elif piecesMatrix[i][j]=="BT":
+                sprite=blaTorImg
+            elif piecesMatrix[i][j]=="NC":
+                sprite=negCabImg
+            elif piecesMatrix[i][j]=="BC":
+                sprite=blaCabImg
+            elif piecesMatrix[i][j]=="NA":
+                sprite=negAlfImg
+            elif piecesMatrix[i][j]=="BA":
+                sprite=blaAlfImg
+            elif piecesMatrix[i][j]=="ND":
+                sprite=negDamImg
+            elif piecesMatrix[i][j]=="BD":
+                sprite=blaDamImg
+            elif piecesMatrix[i][j]=="NP":
+                sprite=negPeoImg
+            elif piecesMatrix[i][j]=="BP":
+                sprite=blaPeoImg
+            else:
+                sprite=""
+            spritesMatrix[i][j]=sprite
+    
 def spriteName(sprite):
     if sprite==negReyImg:
         return "NR"
@@ -261,7 +290,7 @@ def spriteName(sprite):
 ciclo de ejecucion
 """
 def execute():
-    global spritesMatrix,piecesMatrix,whitePlayer,movesCount
+    global spritesMatrix,piecesMatrix,whitePlayer,movesCount,log
     catched= False #permite saber si ya ha elegido una pieza
     sprite=""
     piece =""
@@ -270,6 +299,8 @@ def execute():
     iniY =0
     iniPosI=0
     iniPosJ=0
+    locate(FileManager.getMatrix())
+    
     while not done:
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
@@ -307,6 +338,7 @@ def execute():
                             spritesMatrix[loc[0]][loc[1]]=sprite
                             piecesMatrix[loc[0]][loc[1]]=piece
                             strMove = str(movesCount)+". "+piece+"  "+converIndCol(iniPosJ)+":"+converIndFil(iniPosI)+" -> "+converIndCol(loc[1])+":"+converIndFil(loc[0])
+                            log += strMove+"\n"
                             printMessage(strMove)
                             movesCount+=1
                             iniX = 0
@@ -323,7 +355,10 @@ def execute():
         fill(spritesMatrix)
         pygame.display.update()
         clock.tick(30)
-
+    time = datetime.datetime.now()
+    strOutput="Partida: "+str(time)+"\n***********************\n"+log
+    fileName ="matches//"+str(time).replace(":",".")+".txt"
+    FileManager.save(fileName,strOutput)
     pygame.quit()    
-    
+
 execute()

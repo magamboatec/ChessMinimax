@@ -16,7 +16,7 @@ class ScrollingTextBox:
 	def __init__(self,screen,xmin,xmax,ymin,ymax):
 		self.screen = screen
 		pygame.font.init()
-		self.fontDefault = pygame.font.Font( pygame.font.get_default_font(), 20 )
+		self.fontDefault = pygame.font.Font( 'freesansbold.ttf', 15 )
 		
 		self.xmin = xmin
 		self.xmax = xmax
@@ -73,7 +73,7 @@ class ScrollingTextBox:
 		#Draw all lines
 		xpos = self.xmin
 		ypos = self.ymin
-		color = (255,255,255)#white
+		color = (20,20,20)#gray
 		antialias = 1 #evidently, for some people rendering text fails when antialiasing is off
 		for line in self.lines:
 			renderedLine = self.fontDefault.render(line,antialias,color)
