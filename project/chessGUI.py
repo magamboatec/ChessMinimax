@@ -8,8 +8,8 @@ import datetime
 
 pygame.init()
 pygame.mixer.init()
-music=pygame.mixer.music.load("file.mp3")
-catchSound=pygame.mixer.Sound("catch.wav")
+music=pygame.mixer.music.load("sounds//file.mp3")
+catchSound=pygame.mixer.Sound("sounds//catch.wav")
 pygame.mixer.music.set_volume(0.1)
 catchSound.set_volume(0.2)
 pygame.mixer.music.play(-1)
@@ -21,8 +21,9 @@ gameDisplay.fill((0,0,0))
 clock = pygame.time.Clock()
 rules = Rules()
 
-isWhiteStarting = True
-AIColor = "Black"
+isWhite = True
+AIColor = "Negro"
+AIColor = "Negro"
 
 negReyImg = pygame.transform.scale(pygame.image.load("images//NR.png"),(75,75))
 blaReyImg = pygame.transform.scale(pygame.image.load("images//BR.png"),(75,75))
@@ -41,7 +42,7 @@ whiteSquare = pygame.transform.scale(pygame.image.load("images//white_square.jpg
 cyanSquare = pygame.transform.scale(pygame.image.load("images//blue_square.jpg"),(75,75))
 bordeImg = pygame.transform.scale(pygame.image.load("images//borde.png"),(690,690))
 fondoImg = pygame.image.load("images//fondo.jpg")
-boardImg = pygame.transform.scale(pygame.image.load("images//blackboard.png"),(int(423*1.2),int(595*1.2)))
+paperSheetImg = pygame.transform.scale(pygame.image.load("images//paperSheet.png"),(int(423*1.2),int(595*1.2)))
 plumaImg = pygame.image.load("images//pluma.png")
 
 blackPieces = [negReyImg,negTorImg,negCabImg,negAlfImg,negDamImg,negPeoImg]
@@ -77,8 +78,8 @@ piecesMatrix = [["","","","","","","",""],
 
 gameDisplay.blit(fondoImg,(0,0))
 gameDisplay.blit(bordeImg,(30,30))
-boardSurface = gameDisplay.blit(boardImg,(800,0))
-gameDisplay.blit(plumaImg,(990,50))
+boardSurface = gameDisplay.blit(paperSheetImg,(800,0))
+gameDisplay.blit(plumaImg,(990,150))
 
 
 log = ""
@@ -86,10 +87,12 @@ movesCount=1
 
 
 def drawMessage(message):
+  
     #prints a string to the area to the right of the board
     textBox.Add(message)
-    gameDisplay.blit(boardImg,(800,0))
-    gameDisplay.blit(plumaImg,(990,50))
+    gameDisplay.blit(paperSheetImg,(800,0))
+    gameDisplay.blit(plumaImg,(990,150))
+    
     textBox.Draw()
 
     
@@ -293,11 +296,24 @@ def spriteName(sprite):
         return "BP"
     else:
         return ""
+
+def drawInfo():
+    font = pygame.font.Font('freesansbold.ttf', 15)    
+    text = font.render("Color Jug: "+playerColor, 1, (20, 20, 20))
+    gameDisplay.blit(text, (1050,45))
+    text = font.render("Color AI: "+AIColor, 1, (20, 20, 20))
+    gameDisplay.blit(text, (1050,65)) 
+    if isWhite:
+        text = font.render("Juega: Blanco", 1, (20, 20, 20))
+        gameDisplay.blit(text, (1050,110))
+    else:
+        text = font.render("Juega: Negro", 1, (20, 20, 20))
+        gameDisplay.blit(text, (1050,110))        
 """
 ciclo de ejecucion
 """
 def execute():
-    global spritesMatrix,piecesMatrix,isWhiteStarting,movesCount,log
+    global spritesMatrix,piecesMatrix,isWhite,movesCount,log,playerColor
     catched= False #permite saber si ya ha elegido una pieza
     sprite=""
     piece =""
@@ -305,20 +321,23 @@ def execute():
     iniX =0
     iniY =0
     iniPosI=0
-    iniPosJ=0
+    iniPosJ=0    
     locate(FileManager.getMatrix())
     startCol=FileManager.getStartColor()
     AICol=FileManager.getAIColor()
+    
     if(('B' in startCol) or ('b' in startCol) or ('w' in startCol)or ('W' in startCol)):
-        isWhiteStarting=True
+        isWhite=True
     else:
-        isWhiteStarting=False
+        isWhite=False
         
-    if(('B' in startCol) or ('b' in startCol) or ('w' in startCol)or ('W' in startCol)):   
-        AIColor="White"
+    if(('B' in AICol) or ('b' in AICol) or ('w' in AICol)or ('W' in AICol)):   
+        AIColor="Blanco"
+        playerColor="Negro"
     else:
-        AIColor="Black"     
-        
+        AIColor="Negro"
+        playerColor="Blanco"
+    drawInfo()
     
     while not done:
         
@@ -333,15 +352,18 @@ def execute():
                 if(event.button== 4):
                     if(boardSurface.collidepoint(pygame.mouse.get_pos())):
                         textBox.MoveUp()
-                        gameDisplay.blit(boardImg,(800,0))
-                        gameDisplay.blit(plumaImg,(990,50))
+                        gameDisplay.blit(paperSheetImg,(800,0))
+                        gameDisplay.blit(plumaImg,(990,150))
                         textBox.Draw()
+                        drawInfo()
                 if(event.button==5):
                     if(boardSurface.collidepoint(pygame.mouse.get_pos())):
                         textBox.MoveDown()
-                        gameDisplay.blit(boardImg,(800,0))
-                        gameDisplay.blit(plumaImg,(990,50))
-                        textBox.Draw()                    
+                        gameDisplay.blit(paperSheetImg,(800,0))
+                        gameDisplay.blit(plumaImg,(990,150))
+                        textBox.Draw()
+                        drawInfo()
+                    
                 if(event.button == 3):
                     catched= False
                 if(event.button == 1):
@@ -356,7 +378,7 @@ def execute():
                             sprite= spritesMatrix[loc[0]][loc[1]]
                             piece = piecesMatrix[loc[0]][loc[1]]
                             if(sprite!=""):
-                                if(isWhiteStarting):
+                                if(isWhite):
                                     if(sprite in whitePieces):
                                         catchSound.play()
                                         catched=True
@@ -380,23 +402,25 @@ def execute():
                                 iniY = 0
                                 iniPosI=0
                                 iniPosJ=0
-                                catched=False
-                                isWhiteStarting=not isWhiteStarting
+                                catched=False                              
+                                isWhite=not isWhite
+                                drawInfo()
                             
+ 
         drawMatrix()
         if(catched):
             gameDisplay.blit(cyanSquare,(iniX,iniY));
             
         fill(spritesMatrix)
+
+
+        
         pygame.display.update()
         clock.tick(30)
     time = datetime.datetime.now()
-    if(AIColor=="Black"):
-        strOutput="Partida: "+str(time)+"\nAI: Negro\nJugador: Blanco\n***********************\n"+log
-    else:
-        strOutput="Partida: "+str(time)+"\nAI: Blanco\nJugador: Negro\n***********************\n"+log
+    strOutput="Partida: "+str(time)+"\nAI: "+AIColor+"\nJugador: "+playerColor+"\n***********************\n"+log
     fileName ="matches//"+str(time).replace(":",".")+".txt"
     FileManager.save(fileName,strOutput)
     pygame.quit()    
-
 execute()
+
