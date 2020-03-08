@@ -21,7 +21,8 @@ gameDisplay.fill((0,0,0))
 clock = pygame.time.Clock()
 rules = Rules()
 
-whitePlayer = True
+isWhiteStarting = True
+AIColor = "Black"
 
 negReyImg = pygame.transform.scale(pygame.image.load("images//NR.png"),(75,75))
 blaReyImg = pygame.transform.scale(pygame.image.load("images//BR.png"),(75,75))
@@ -41,6 +42,7 @@ cyanSquare = pygame.transform.scale(pygame.image.load("images//blue_square.jpg")
 bordeImg = pygame.transform.scale(pygame.image.load("images//borde.png"),(690,690))
 fondoImg = pygame.image.load("images//fondo.jpg")
 boardImg = pygame.transform.scale(pygame.image.load("images//blackboard.png"),(int(423*1.2),int(595*1.2)))
+plumaImg = pygame.image.load("images//pluma.png")
 
 blackPieces = [negReyImg,negTorImg,negCabImg,negAlfImg,negDamImg,negPeoImg]
 whitePieces = [blaReyImg,blaTorImg,blaCabImg,blaAlfImg,blaDamImg,blaPeoImg]
@@ -85,9 +87,12 @@ movesCount=1
 def printMessage(message):
     #prints a string to the area to the right of the board
     textBox.Add(message)
+    gameDisplay.blit(boardImg,(800,0))
+    gameDisplay.blit(plumaImg,(990,50))
     textBox.Draw()
+
     
-textBox = ScrollingTextBox(gameDisplay,860,1100,40,750)
+textBox = ScrollingTextBox(gameDisplay,860,1100,40,670)
 
 def converIndCol(num):
     if num==0:
@@ -290,7 +295,7 @@ def spriteName(sprite):
 ciclo de ejecucion
 """
 def execute():
-    global spritesMatrix,piecesMatrix,whitePlayer,movesCount,log
+    global spritesMatrix,piecesMatrix,isWhiteStarting,movesCount,log
     catched= False #permite saber si ya ha elegido una pieza
     sprite=""
     piece =""
@@ -300,6 +305,18 @@ def execute():
     iniPosI=0
     iniPosJ=0
     locate(FileManager.getMatrix())
+    startCol=FileManager.getStartColor()
+    AICol=FileManager.getAIColor()
+    if(startCol=="Blanco" or startCol=="BLANCO" or startCol=="blanco" or startCol=="white" or startCol=="White" or startCol=="WHITE"):
+        isWhiteStarting=True
+    else:
+        isWhiteStarting=False
+        
+    if(startCol=="Blanco" or startCol=="BLANCO" or startCol=="blanco" or startCol=="white" or startCol=="White" or startCol=="WHITE"):
+        AIColor="White"
+    else:
+        AIColor="Black"     
+        
     
     while not done:
         for event in pygame.event.get():
@@ -321,7 +338,7 @@ def execute():
                         sprite= spritesMatrix[loc[0]][loc[1]]
                         piece = piecesMatrix[loc[0]][loc[1]]
                         if(sprite!=""):
-                            if(whitePlayer):
+                            if(isWhiteStarting):
                                 if(sprite in whitePieces):
                                     catchSound.play()
                                     catched=True
@@ -346,7 +363,7 @@ def execute():
                             iniPosI=0
                             iniPosJ=0
                             catched=False
-                            whitePlayer=not whitePlayer
+                            isWhiteStarting=not isWhiteStarting
                             
         printMatrix()
         if(catched):

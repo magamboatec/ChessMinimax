@@ -1,3 +1,4 @@
+import re
 class FileManager():
     # metodo para grabar un mapa en el file
     # E: el path del file, un string con el mensaje
@@ -62,7 +63,18 @@ class FileManager():
             return 1
         elif num=="8":
             return 0
-        
+    def getStartColor():
+        strFile=FileManager.read("config.txt")
+        listPos=strFile.split("\n")
+        startColor=listPos[0]
+        return startColor.split(" ")[1]
+    
+    def getAIColor():
+        strFile=FileManager.read("config.txt")
+        listPos=strFile.split("\n")
+        startColor=listPos[1]
+        return startColor.split(" ")[1]
+    
     def getMatrix():
         strFile=FileManager.read("config.txt")
         listPos=strFile.split("\n")
@@ -74,11 +86,14 @@ class FileManager():
                 ["","","","","","","",""],
                 ["","","","","","","",""],
                 ["","","","","","","",""]]
+        pattern = re.compile("(N|B) .*")
         for i in listPos:
-            pos = i.split(" ")
-            x=FileManager.convertPosFil(pos[3])
-            y=FileManager.convertPosCol(pos[2])
-            matrix[x][y]=pos[0]+pos[1]
+            match = re.search(pattern, i)
+            if(match):
+                pos = i.split(" ")
+                x=FileManager.convertPosFil(pos[3])
+                y=FileManager.convertPosCol(pos[2])
+                matrix[x][y]=pos[0]+pos[1]
             
         return matrix
     
