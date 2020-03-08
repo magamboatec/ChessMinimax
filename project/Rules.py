@@ -1,7 +1,7 @@
 import pygame
 
-whitePieces = ["bp","br","bd","ba","bc","bt"]
-blackPieces = ["np","nr","nd","na","nc","nt"]
+whitePieces = ["BP","BR","BD","BA","BC","BT"]
+blackPieces = ["NP","NR","ND","NA","NC","NT"]
 
 class Rules:
 
@@ -14,7 +14,7 @@ class Rules:
         toPiece = board[toSquare_r][toSquare_c]
         if fromTuple == toTuple:
             return False
-        if sprite == "bp":
+        if sprite == "BP":
             if toSquare_r == fromSquare_r+1 and toSquare_c == fromSquare_c and toPiece == "":
                 return True
             if fromSquare_r == 1 and toSquare_r == fromSquare_r+2 and toSquare_c == fromSquare_c and toPiece == "":
@@ -23,7 +23,7 @@ class Rules:
             if toSquare_r == fromSquare_r+1 and (toSquare_c == fromSquare_c+1 or toSquare_c == fromSquare_c-1) and (toPiece in blackPieces):
                 return True
              
-        elif (sprite == "np"):
+        elif (sprite == "NP"):
             if toSquare_r == fromSquare_r-1 and toSquare_c == fromSquare_c and toPiece == "":
                 return True
             if fromSquare_r == 6 and toSquare_r == fromSquare_r-2 and toSquare_c == fromSquare_c and toPiece == "":
@@ -32,16 +32,16 @@ class Rules:
             if toSquare_r == fromSquare_r-1 and (toSquare_c == fromSquare_c+1 or toSquare_c == fromSquare_c-1) and (toPiece in whitePieces):
                 return True
             
-        elif (sprite == "bt"):
+        elif (sprite == "BT"):
             if (toSquare_r == fromSquare_r or toSquare_c == fromSquare_c) and (toPiece == "" or (toPiece in blackPieces)):
                 if self.IsClearPath(board,fromTuple,toTuple):
                     return True
-        elif (sprite == "nt"):
+        elif (sprite == "NT"):
             if (toSquare_r == fromSquare_r or toSquare_c == fromSquare_c) and (toPiece == "" or (toPiece in whitePieces)):
                 if self.IsClearPath(board,fromTuple,toTuple):
                     return True;
                 
-        elif "bc" in fromPiece:
+        elif "BC" in fromPiece:
             col_diff = toSquare_c - fromSquare_c
             row_diff = toSquare_r - fromSquare_r
             if toPiece == "" or toPiece in blackPieces:
@@ -61,7 +61,7 @@ class Rules:
                     return True
                 if col_diff == -1 and row_diff == -2:
                     return True
-        elif "nc" in fromPiece:
+        elif "NC" in fromPiece:
             col_diff = toSquare_c - fromSquare_c
             row_diff = toSquare_r - fromSquare_r
             if toPiece == "" or toPiece in whitePieces:
@@ -82,23 +82,23 @@ class Rules:
                 if col_diff == -1 and row_diff == -2:
                     return True
 
-        elif "ba" in fromPiece:
+        elif "BA" in fromPiece:
             if ( abs(toSquare_r - fromSquare_r) == abs(toSquare_c - fromSquare_c) ) and (toPiece == "" or ( toPiece in blackPieces)):
                 if self.IsClearPath(board,fromTuple,toTuple):
                     return True
-        elif "na" in fromPiece:
+        elif "NA" in fromPiece:
             if ( abs(toSquare_r - fromSquare_r) == abs(toSquare_c - fromSquare_c) ) and (toPiece == "" or ( toPiece in whitePieces)):
                 if self.IsClearPath(board,fromTuple,toTuple):
                     return True
                 
-        elif "bd" in fromPiece:
+        elif "BD" in fromPiece:
             if (toSquare_r == fromSquare_r or toSquare_c == fromSquare_c) and (toPiece == "" or (toPiece in blackPieces)):
                 if self.IsClearPath(board,fromTuple,toTuple):
                     return True
             if ( abs(toSquare_r - fromSquare_r) == abs(toSquare_c - fromSquare_c) ) and (toPiece == "" or ( toPiece in blackPieces)):
                 if self.IsClearPath(board,fromTuple,toTuple):
                     return True
-        elif "nd" in fromPiece:
+        elif "ND" in fromPiece:
             if (toSquare_r == fromSquare_r or toSquare_c == fromSquare_c) and (toPiece == "" or (toPiece in whitePieces)):
                 if self.IsClearPath(board,fromTuple,toTuple):
                     return True
@@ -106,7 +106,7 @@ class Rules:
                 if self.IsClearPath(board,fromTuple,toTuple):
                     return True
 
-        elif "br" in fromPiece:
+        elif "BR" in fromPiece:
             col_diff = toSquare_c - fromSquare_c
             row_diff = toSquare_r - fromSquare_r
             if toPiece == "" or ( toPiece in blackPieces):
@@ -116,7 +116,7 @@ class Rules:
                     return True
                 if abs(col_diff) == 1 and abs(row_diff) == 1:
                     return True            
-        elif "nr" in fromPiece:
+        elif "NR" in fromPiece:
             col_diff = toSquare_c - fromSquare_c
             row_diff = toSquare_r - fromSquare_r
             if toPiece == "" or ( toPiece in whitePieces):
