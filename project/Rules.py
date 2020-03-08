@@ -4,7 +4,40 @@ whitePieces = ["BP","BR","BD","BA","BC","BT"]
 blackPieces = ["NP","NR","ND","NA","NC","NT"]
 
 class Rules:
+    def IsCheckmate(self,board,color):
+            #returns true if 'color' player is in checkmate
+            #Call GetListOfValidMoves for each piece of current player
+            #If there aren't any valid moves for any pieces, then return true
 
+            if color == "Negro":
+                    myColor = 'N'
+                    enemyColor = 'B'
+            else:
+                    myColor = 'B'
+                    enemyColor = 'N'
+
+            myColorValidMoves = [];
+            for row in range(8):
+                    for col in range(8):
+                            piece = board[row][col]
+                            if myColor in piece:
+                                    myColorValidMoves.extend(self.GetListOfValidMoves(board,color,(row,col)))
+
+            if len(myColorValidMoves) == 0:
+                    return True
+            else:
+                    return False
+
+    def GetListOfValidMoves(self,board,color,fromTuple):
+            legalDestinationSpaces = []
+            for row in range(8):
+                    for col in range(8):
+                            d = (row,col)
+                            if self.IsLegalMove(board,color,fromTuple,d):
+                                    if not self.DoesMovePutPlayerInCheck(board,color,fromTuple,d):
+                                            legalDestinationSpaces.append(d)
+            return legalDestinationSpaces
+	    
     def IsLegalMove(self,sprite,board,fromTuple,toTuple):
         fromSquare_r = fromTuple[0]
         fromSquare_c = fromTuple[1]
@@ -171,3 +204,53 @@ class Rules:
             return False
         else:
             return self.IsClearPath(board,newTuple,toTuple)
+        
+    def DoesMovePutPlayerInCheck(self,board,color,fromTuple,toTuple):
+            #makes a hypothetical move; returns True if it puts current player into check
+            fromSquare_r = fromTuple[0]
+            fromSquare_c = fromTuple[1]
+            toSquare_r = toTuple[0]
+            toSquare_c = toTuple[1]
+            fromPiece = board[fromSquare_r][fromSquare_c]
+            toPiece = board[toSquare_r][toSquare_c]
+
+            #make the move, then test if 'color' is in check
+            board[toSquare_r][toSquare_c] = fromPiece
+            board[fromSquare_r][fromSquare_c] = ""
+
+            retval = self.IsInCheck(board,color)
+
+            #undo temporary move
+            board[toSquare_r][toSquare_c] = toPiece
+            board[fromSquare_r][fromSquare_c] = fromPiece
+
+            return retval
+
+    def IsInCheck(self,board,color):
+            #check if 'color' is in check
+            #scan through squares for all enemy pieces; if there IsLegalMove to color's king, then return True.
+            if color == "Black":
+                    myColor = 'N'
+                    enemyColor = 'B'
+                    enemyColorFull = "white"
+            else:
+                    myColor = 'B'
+                    enemyColor = 'N'
+                    enemyColorFull = "Black"
+
+            kingTuple = (0,0)
+            #First, get current player's king location    
+            for row in range(8):
+                    for col in range(8):
+                            piece = board[row][col]
+                            if 'R' in piece and myColor in piece:
+                                    kingTuple = (row,col)
+
+            #Check if any of enemy player's pieces has a legal move to current player's king
+            for row in range(8):
+                    for col in range(8):
+                            piece = board[row][col]
+                            if enemyColor in piece:
+                                    if self.IsLegalMove(board,enemyColorFull,(row,col),kingTuple):
+                                            return True
+            return False

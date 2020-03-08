@@ -77,14 +77,15 @@ piecesMatrix = [["","","","","","","",""],
 
 gameDisplay.blit(fondoImg,(0,0))
 gameDisplay.blit(bordeImg,(30,30))
-gameDisplay.blit(boardImg,(800,0))
+boardSurface = gameDisplay.blit(boardImg,(800,0))
+gameDisplay.blit(plumaImg,(990,50))
 
 
 log = ""
 movesCount=1
 
 
-def printMessage(message):
+def drawMessage(message):
     #prints a string to the area to the right of the board
     textBox.Add(message)
     gameDisplay.blit(boardImg,(800,0))
@@ -153,7 +154,7 @@ def drawMarkets():
     
 drawMarkets()
 #Imprime el tablero de juego
-def printMatrix():
+def drawMatrix():
     control = True
     for i in gameMatrix:
         for j in i:
@@ -169,16 +170,17 @@ def fill(matrix):
         for col in range(8):
             sprite=spritesMatrix[fil][col]
             pos = gameMatrix[fil][col]
+            piece = piecesMatrix[fil][col]
             if sprite!="":
-                if(sprite==negPeoImg or sprite==blaPeoImg):
+                if('P' in piece):
                     gameDisplay.blit(sprite,(pos[0]+12,pos[1]+25))
-                elif(sprite==negDamImg or sprite==blaDamImg):    
+                elif('D' in piece):    
                     gameDisplay.blit(sprite,(pos[0]+5,pos[1]+7))
-                elif(sprite==negAlfImg or sprite==blaAlfImg): 
+                elif('A' in piece): 
                     gameDisplay.blit(sprite,(pos[0]+6,pos[1]+10))
-                elif(sprite==negCabImg or sprite==blaCabImg): 
+                elif('C' in piece): 
                     gameDisplay.blit(sprite,(pos[0]+8,pos[1]+15))
-                elif(sprite==negTorImg or sprite==blaTorImg): 
+                elif('T' in piece): 
                     gameDisplay.blit(sprite,(pos[0]+10,pos[1]+20))
                     
                 else:
@@ -211,12 +213,12 @@ def moveAnimation(sprite,x,y,xMeta,yMeta,tempMatrix):
             y+=5
         elif y>yMeta:
             y-=5
-        printMatrix()
+        drawMatrix()
         fill(tempMatrix)
-        if(y<525):
-            gameDisplay.blit(sprite,(x+7,y+7))
+        if(y<570):
+            gameDisplay.blit(sprite,(x+10,y+10))
         else:
-            gameDisplay.blit(sprite,(x,y))
+            gameDisplay.blit(sprite,(x+5,y+5))
         pygame.display.update()
         clock.tick(60)
         count+=1
@@ -307,65 +309,81 @@ def execute():
     locate(FileManager.getMatrix())
     startCol=FileManager.getStartColor()
     AICol=FileManager.getAIColor()
-    if(startCol=="Blanco" or startCol=="BLANCO" or startCol=="blanco" or startCol=="white" or startCol=="White" or startCol=="WHITE"):
+    if(('B' in startCol) or ('b' in startCol) or ('w' in startCol)or ('W' in startCol)):
         isWhiteStarting=True
     else:
         isWhiteStarting=False
         
-    if(startCol=="Blanco" or startCol=="BLANCO" or startCol=="blanco" or startCol=="white" or startCol=="White" or startCol=="WHITE"):
+    if(('B' in startCol) or ('b' in startCol) or ('w' in startCol)or ('W' in startCol)):   
         AIColor="White"
     else:
         AIColor="Black"     
         
     
     while not done:
+        
         for event in pygame.event.get():
+            
             if event.type == pygame.QUIT:
                 done = True
             coorX=roundBy75(pygame.mouse.get_pos()[0])
             coorY=roundBy75(pygame.mouse.get_pos()[1])
             if event.type == pygame.MOUSEBUTTONDOWN:
+                
+                if(event.button== 4):
+                    if(boardSurface.collidepoint(pygame.mouse.get_pos())):
+                        textBox.MoveUp()
+                        gameDisplay.blit(boardImg,(800,0))
+                        gameDisplay.blit(plumaImg,(990,50))
+                        textBox.Draw()
+                if(event.button==5):
+                    if(boardSurface.collidepoint(pygame.mouse.get_pos())):
+                        textBox.MoveDown()
+                        gameDisplay.blit(boardImg,(800,0))
+                        gameDisplay.blit(plumaImg,(990,50))
+                        textBox.Draw()                    
                 if(event.button == 3):
                     catched= False
-                loc=buscarIndice(coorX,coorY)    
-                if(loc!=(-1,-1)):
-                    if(not catched):
-                        
-                        iniPosI=loc[0]
-                        iniPosJ=loc[1]
-                        iniX = coorX
-                        iniY = coorY
-                        sprite= spritesMatrix[loc[0]][loc[1]]
-                        piece = piecesMatrix[loc[0]][loc[1]]
-                        if(sprite!=""):
-                            if(isWhiteStarting):
-                                if(sprite in whitePieces):
-                                    catchSound.play()
-                                    catched=True
-                            else:
-                                if(sprite in blackPieces):
-                                    catchSound.play()
-                                    catched=True                                
-                    else:
-                        
-                        if(rules.IsLegalMove(piece,piecesMatrix,(iniPosI,iniPosJ),(loc[0],loc[1]))):
-                            spritesMatrix[iniPosI][iniPosJ]=""
-                            piecesMatrix[iniPosI][iniPosJ]=""
-                            moveAnimation(sprite,iniX,iniY,coorX,coorY,spritesMatrix)
-                            spritesMatrix[loc[0]][loc[1]]=sprite
-                            piecesMatrix[loc[0]][loc[1]]=piece
-                            strMove = str(movesCount)+". "+piece+"  "+converIndCol(iniPosJ)+":"+converIndFil(iniPosI)+" -> "+converIndCol(loc[1])+":"+converIndFil(loc[0])
-                            log += strMove+"\n"
-                            printMessage(strMove)
-                            movesCount+=1
-                            iniX = 0
-                            iniY = 0
-                            iniPosI=0
-                            iniPosJ=0
-                            catched=False
-                            isWhiteStarting=not isWhiteStarting
+                if(event.button == 1):
+                    loc=buscarIndice(coorX,coorY)    
+                    if(loc!=(-1,-1)):
+                        if(not catched):
                             
-        printMatrix()
+                            iniPosI=loc[0]
+                            iniPosJ=loc[1]
+                            iniX = coorX
+                            iniY = coorY
+                            sprite= spritesMatrix[loc[0]][loc[1]]
+                            piece = piecesMatrix[loc[0]][loc[1]]
+                            if(sprite!=""):
+                                if(isWhiteStarting):
+                                    if(sprite in whitePieces):
+                                        catchSound.play()
+                                        catched=True
+                                else:
+                                    if(sprite in blackPieces):
+                                        catchSound.play()
+                                        catched=True                                
+                        else:
+                            
+                            if(rules.IsLegalMove(piece,piecesMatrix,(iniPosI,iniPosJ),(loc[0],loc[1]))):
+                                spritesMatrix[iniPosI][iniPosJ]=""
+                                piecesMatrix[iniPosI][iniPosJ]=""
+                                moveAnimation(sprite,iniX,iniY,coorX,coorY,spritesMatrix)
+                                spritesMatrix[loc[0]][loc[1]]=sprite
+                                piecesMatrix[loc[0]][loc[1]]=piece
+                                strMove = str(movesCount)+". "+piece+"  "+converIndCol(iniPosJ)+":"+converIndFil(iniPosI)+" -> "+converIndCol(loc[1])+":"+converIndFil(loc[0])
+                                log += strMove+"\n"
+                                drawMessage(strMove)
+                                movesCount+=1
+                                iniX = 0
+                                iniY = 0
+                                iniPosI=0
+                                iniPosJ=0
+                                catched=False
+                                isWhiteStarting=not isWhiteStarting
+                            
+        drawMatrix()
         if(catched):
             gameDisplay.blit(cyanSquare,(iniX,iniY));
             
@@ -373,7 +391,10 @@ def execute():
         pygame.display.update()
         clock.tick(30)
     time = datetime.datetime.now()
-    strOutput="Partida: "+str(time)+"\n***********************\n"+log
+    if(AIColor=="Black"):
+        strOutput="Partida: "+str(time)+"\nAI: Negro\nJugador: Blanco\n***********************\n"+log
+    else:
+        strOutput="Partida: "+str(time)+"\nAI: Blanco\nJugador: Negro\n***********************\n"+log
     fileName ="matches//"+str(time).replace(":",".")+".txt"
     FileManager.save(fileName,strOutput)
     pygame.quit()    
