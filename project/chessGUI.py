@@ -23,7 +23,6 @@ rules = Rules()
 
 isWhite = True
 AIColor = "Negro"
-AIColor = "Negro"
 
 negReyImg = pygame.transform.scale(pygame.image.load("images//NR.png"),(75,75))
 blaReyImg = pygame.transform.scale(pygame.image.load("images//BR.png"),(75,75))
