@@ -2,6 +2,7 @@ import pygame
 from Rules import Rules
 from ScrollingTextBox import ScrollingTextBox
 from fileManager import FileManager
+from AI import AI
 import datetime
 
 
@@ -324,6 +325,7 @@ def execute():
     locate(FileManager.getMatrix())
     startCol=FileManager.getStartColor()
     AICol=FileManager.getAIColor()
+    inteligencia = AI()
     
     if(('B' in startCol) or ('b' in startCol) or ('w' in startCol)or ('W' in startCol)):
         isWhite=True
@@ -366,44 +368,63 @@ def execute():
                 if(event.button == 3):
                     catched= False
                 if(event.button == 1):
-                    loc=buscarIndice(coorX,coorY)    
-                    if(loc!=(-1,-1)):
-                        if(not catched):
-                            
-                            iniPosI=loc[0]
-                            iniPosJ=loc[1]
-                            iniX = coorX
-                            iniY = coorY
-                            sprite= spritesMatrix[loc[0]][loc[1]]
-                            piece = piecesMatrix[loc[0]][loc[1]]
-                            if(sprite!=""):
-                                if(isWhite):
+                    if(isWhite):
+                        loc=buscarIndice(coorX,coorY)    
+                        if(loc!=(-1,-1)):
+                            if(not catched):
+                                
+                                iniPosI=loc[0]
+                                iniPosJ=loc[1]
+                                iniX = coorX
+                                iniY = coorY
+                                sprite= spritesMatrix[loc[0]][loc[1]]
+                                piece = piecesMatrix[loc[0]][loc[1]]
+                                if(sprite!=""):
                                     if(sprite in whitePieces):
                                         catchSound.play()
                                         catched=True
-                                else:
-                                    if(sprite in blackPieces):
-                                        catchSound.play()
-                                        catched=True                                
-                        else:
-                            
-                            if(rules.IsLegalMove(piece,piecesMatrix,(iniPosI,iniPosJ),(loc[0],loc[1]))):
-                                spritesMatrix[iniPosI][iniPosJ]=""
-                                piecesMatrix[iniPosI][iniPosJ]=""
-                                moveAnimation(sprite,iniX,iniY,coorX,coorY,spritesMatrix)
-                                spritesMatrix[loc[0]][loc[1]]=sprite
-                                piecesMatrix[loc[0]][loc[1]]=piece
-                                strMove = str(movesCount)+". "+piece+"  "+converIndCol(iniPosJ)+":"+converIndFil(iniPosI)+" -> "+converIndCol(loc[1])+":"+converIndFil(loc[0])
-                                log += strMove+"\n"
-                                drawMessage(strMove)
-                                movesCount+=1
-                                iniX = 0
-                                iniY = 0
-                                iniPosI=0
-                                iniPosJ=0
-                                catched=False                              
-                                isWhite=not isWhite
-                                drawInfo()
+                               
+                            else:
+                                
+                                if(rules.IsLegalMove(piece,piecesMatrix,(iniPosI,iniPosJ),(loc[0],loc[1]))):
+                                    spritesMatrix[iniPosI][iniPosJ]=""
+                                    piecesMatrix[iniPosI][iniPosJ]=""
+                                    moveAnimation(sprite,iniX,iniY,coorX,coorY,spritesMatrix)
+                                    spritesMatrix[loc[0]][loc[1]]=sprite
+                                    piecesMatrix[loc[0]][loc[1]]=piece
+                                    strMove = str(movesCount)+". "+piece+"  "+converIndCol(iniPosJ)+":"+converIndFil(iniPosI)+" -> "+converIndCol(loc[1])+":"+converIndFil(loc[0])
+                                    log += strMove+"\n"
+                                    drawMessage(strMove)
+                                    movesCount+=1
+                                    iniX = 0
+                                    iniY = 0
+                                    iniPosI=0
+                                    iniPosJ=0
+                                    catched=False                              
+                                    isWhite=not isWhite
+                                    drawInfo()
+                                    
+                                    #time.sleep(0.5)
+
+                                    move=inteligencia.play(piecesMatrix,"Negro")
+                                    iniPos = move[0]
+                                    finPos = move[1]
+                                    sprite = spritesMatrix[iniPos[0]][iniPos[1]]
+                                    piece = piecesMatrix[iniPos[0]][iniPos[1]]
+                                    iniCoord = gameMatrix[iniPos[0]][iniPos[1]]
+                                    finCoord = gameMatrix[finPos[0]][finPos[1]]
+                                    spritesMatrix[iniPos[0]][iniPos[1]]=""
+                                    piecesMatrix[iniPos[0]][iniPos[1]]=""
+                                    moveAnimation(sprite,iniCoord[0],iniCoord[1],finCoord[0],finCoord[1],spritesMatrix)
+                                    spritesMatrix[finPos[0]][finPos[1]]=sprite
+                                    piecesMatrix[finPos[0]][finPos[1]]=piece
+                                    strMove = str(movesCount)+". "+piece+"  "+converIndCol(iniPos[1])+":"+converIndFil(iniPos[0])+" -> "+converIndCol(finPos[0])+":"+converIndFil(finPos[0])
+                                    log += strMove+"\n"
+                                    drawMessage(strMove)
+                                    isWhite=not isWhite
+                                    drawInfo()
+
+
                             
  
         drawMatrix()
