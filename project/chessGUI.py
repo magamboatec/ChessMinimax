@@ -348,7 +348,7 @@ def drawInfo():
 ciclo de ejecucion
 """
 def execute():
-    global spritesMatrix,piecesMatrix,playerMove,movesCount,log,playerColor,missedPiecesPlayer,missedPiecesAI
+    global spritesMatrix,piecesMatrix,playerMove,movesCount,log,playerColor,AIColor,missedPiecesPlayer,missedPiecesAI
     catched= False #permite saber si ya ha elegido una pieza
     sprite=""
     piece =""
@@ -368,7 +368,7 @@ def execute():
     else:
         playerMove=True
         
-    if(('B' in AICol) or ('b' in AICol) or ('w' in AICol)or ('W' in AICol)):   
+    if(('B' in AICol) or ('b' in AICol) or ('w' in AICol)or ('W' in AICol)):
         AIColor="Blanco"
         playerColor="Negro"
     else:
@@ -457,10 +457,9 @@ def execute():
             #--- computer move
             if(not playerMove):
                 #temp = copyMatrix(piecesMatrix)
-                if(rules.IsCheckmate(piecesMatrix,AIColor)):
-                    done=True
+                #if(rules.IsCheckmate(piecesMatrix,AIColor)):
+                    #done=True
                 move=inteligence.play(piecesMatrix,AIColor)
-                
                 iniPos = move[0]
                 finPos = move[1]
                 sprite = spritesMatrix[iniPos[0]][iniPos[1]]
