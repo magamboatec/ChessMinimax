@@ -3,9 +3,10 @@ from Rules import Rules
 from ScrollingTextBox import ScrollingTextBox
 from fileManager import FileManager
 from AI import AI
+from selectionWindow import selectionWindow
 import datetime
-
-
+import tkinter as tk
+from tkinter import ttk
 
 pygame.init()
 pygame.mixer.init()
@@ -22,7 +23,7 @@ gameDisplay.fill((0,0,0))
 clock = pygame.time.Clock()
 rules = Rules()
 
-isWhite = True
+playerMove = True
 AIColor = "Negro"
 
 negReyImg = pygame.transform.scale(pygame.image.load("images//NR.png"),(75,75))
@@ -75,6 +76,8 @@ piecesMatrix = [["","","","","","","",""],
                 ["","","","","","","",""],
                 ["","","","","","","",""]]
 
+missedPiecesPlayer = []
+missedPiecesAI = []
 
 gameDisplay.blit(fondoImg,(0,0))
 gameDisplay.blit(bordeImg,(30,30))
@@ -85,6 +88,9 @@ gameDisplay.blit(plumaImg,(990,150))
 log = ""
 movesCount=1
 
+class resurrectedPiece:
+    def _init_(self):
+        self.name=""
 
 def drawMessage(message):
   
@@ -204,7 +210,6 @@ def roundBy75(x):
 
 def moveAnimation(sprite,x,y,xMeta,yMeta,tempMatrix):
     count = 0
-    
     fill(tempMatrix)
     while x!=xMeta or y!=yMeta:
         if x<xMeta:
@@ -268,7 +273,11 @@ def locate(matrix):
             else:
                 sprite=""
             spritesMatrix[i][j]=sprite
-    
+def copyMatrix(matrix):
+    newMatrix=[]
+    for i in matrix:
+        newMatrix.append(i[:])
+    return newMatrix    
 def spriteName(sprite):
     if sprite==negReyImg:
         return "NR"
@@ -296,14 +305,40 @@ def spriteName(sprite):
         return "BP"
     else:
         return ""
-
+def getSprite(name):
+    if name=="NR":
+        return negReyImg
+    elif name=="BR":
+        return blaReyImg
+    elif name=="NT":
+        return negTorImg
+    elif  name=="BT":
+        return blaTorImg
+    elif name=="NC":
+        return negCabImg
+    elif name=="BC":
+        return  blaCabImg
+    elif name=="NA" :
+        return negAlfImg
+    elif name=="BA":
+        return  blaAlfImg
+    elif name=="ND" :
+        return negDamImg
+    elif name=="BD":
+        return blaDamImg
+    elif name=="NP":
+        return negPeoImg
+    elif name=="BP":
+        return blaPeoImg
+    else:
+        return ""
 def drawInfo():
     font = pygame.font.Font('freesansbold.ttf', 15)    
     text = font.render("Color Jug: "+playerColor, 1, (20, 20, 20))
     gameDisplay.blit(text, (1050,45))
     text = font.render("Color AI: "+AIColor, 1, (20, 20, 20))
     gameDisplay.blit(text, (1050,65)) 
-    if isWhite:
+    if playerMove:
         text = font.render("Juega: Blanco", 1, (20, 20, 20))
         gameDisplay.blit(text, (1050,110))
     else:
@@ -313,7 +348,7 @@ def drawInfo():
 ciclo de ejecucion
 """
 def execute():
-    global spritesMatrix,piecesMatrix,isWhite,movesCount,log,playerColor
+    global spritesMatrix,piecesMatrix,playerMove,movesCount,log,playerColor,missedPiecesPlayer,missedPiecesAI
     catched= False #permite saber si ya ha elegido una pieza
     sprite=""
     piece =""
@@ -321,16 +356,17 @@ def execute():
     iniX =0
     iniY =0
     iniPosI=0
-    iniPosJ=0    
-    locate(FileManager.getMatrix())
+    iniPosJ=0
+    iniMatrix=FileManager.getMatrix()
+    locate(iniMatrix)
     startCol=FileManager.getStartColor()
     AICol=FileManager.getAIColor()
-    inteligencia = AI()
+    inteligence = AI()
     
-    if(('B' in startCol) or ('b' in startCol) or ('w' in startCol)or ('W' in startCol)):
-        isWhite=True
+    if(AICol==startCol):
+        playerMove=False
     else:
-        isWhite=False
+        playerMove=True
         
     if(('B' in AICol) or ('b' in AICol) or ('w' in AICol)or ('W' in AICol)):   
         AIColor="Blanco"
@@ -338,6 +374,8 @@ def execute():
     else:
         AIColor="Negro"
         playerColor="Blanco"
+    missedPiecesAI=FileManager.getMissedPieces(iniMatrix,AIColor)
+    missedPiecesPlayer=FileManager.getMissedPieces(iniMatrix,playerColor)
     drawInfo()
     
     while not done:
@@ -346,8 +384,7 @@ def execute():
             
             if event.type == pygame.QUIT:
                 done = True
-            coorX=roundBy75(pygame.mouse.get_pos()[0])
-            coorY=roundBy75(pygame.mouse.get_pos()[1])
+
             if event.type == pygame.MOUSEBUTTONDOWN:
                 
                 if(event.button== 4):
@@ -367,62 +404,91 @@ def execute():
                     
                 if(event.button == 3):
                     catched= False
-                if(event.button == 1):
-                    if(isWhite):
-                        loc=buscarIndice(coorX,coorY)    
-                        if(loc!=(-1,-1)):
-                            if(not catched):
+                coorX=roundBy75(pygame.mouse.get_pos()[0])
+                coorY=roundBy75(pygame.mouse.get_pos()[1])
+                loc=buscarIndice(coorX,coorY) 
+                if(event.button == 1 and playerMove and loc!=(-1,-1)):
+                    if(not catched):   
+                        iniPosI=loc[0]
+                        iniPosJ=loc[1]
+                        iniX = coorX
+                        iniY = coorY
+                        sprite= spritesMatrix[loc[0]][loc[1]]
+                        piece = piecesMatrix[loc[0]][loc[1]]
+                        if((sprite in whitePieces )and ('B' in playerColor) and (sprite!="")):
+                            catchSound.play()
+                            catched=True
+                        elif((sprite in blackPieces )and ('N' in playerColor) and (sprite!="")):
+                            catchSound.play()
+                            catched=True                               
+                    else:
+                        if(rules.IsLegalMove(piece,piecesMatrix,(iniPosI,iniPosJ),(loc[0],loc[1]))):   
+                            spritesMatrix[iniPosI][iniPosJ]=""
+                            piecesMatrix[iniPosI][iniPosJ]=""
+                            if(AIColor[0] in piecesMatrix[loc[0]][loc[1]] and not('P' in piecesMatrix[loc[0]][loc[1]])):
+                                missedPiecesAI.append(piecesMatrix[loc[0]][loc[1]])
+                            moveAnimation(sprite,iniX,iniY,coorX,coorY,spritesMatrix)
+                            spritesMatrix[loc[0]][loc[1]]=sprite
+                            piecesMatrix[loc[0]][loc[1]]=piece
+                            strMove = str(movesCount)+". "+piece+"  "+converIndCol(iniPosJ)+":"+converIndFil(iniPosI)+" -> "+converIndCol(loc[1])+":"+converIndFil(loc[0])
+                            log += strMove+"\n"
+                            drawMessage(strMove)
+                            
+                            iniX = 0
+                            iniY = 0
+                            iniPosI=0
+                            iniPosJ=0
+                            catched=False                              
+                            playerMove=not playerMove
+                            drawInfo()      
+                            
+                            if("BP" == piece and loc[0]==0 ) or ("NP" == piece and loc[0]==7 ) :
+                                main_window = tk.Tk()
+                                app = selectionWindow(main_window)
+                                app.setItems(missedPiecesPlayer)
+                                app.mainloop()
                                 
-                                iniPosI=loc[0]
-                                iniPosJ=loc[1]
-                                iniX = coorX
-                                iniY = coorY
-                                sprite= spritesMatrix[loc[0]][loc[1]]
-                                piece = piecesMatrix[loc[0]][loc[1]]
-                                if(sprite!=""):
-                                    if(sprite in whitePieces):
-                                        catchSound.play()
-                                        catched=True
-                               
-                            else:
-                                
-                                if(rules.IsLegalMove(piece,piecesMatrix,(iniPosI,iniPosJ),(loc[0],loc[1]))):
-                                    spritesMatrix[iniPosI][iniPosJ]=""
-                                    piecesMatrix[iniPosI][iniPosJ]=""
-                                    moveAnimation(sprite,iniX,iniY,coorX,coorY,spritesMatrix)
-                                    spritesMatrix[loc[0]][loc[1]]=sprite
-                                    piecesMatrix[loc[0]][loc[1]]=piece
-                                    strMove = str(movesCount)+". "+piece+"  "+converIndCol(iniPosJ)+":"+converIndFil(iniPosI)+" -> "+converIndCol(loc[1])+":"+converIndFil(loc[0])
-                                    log += strMove+"\n"
-                                    drawMessage(strMove)
-                                    movesCount+=1
-                                    iniX = 0
-                                    iniY = 0
-                                    iniPosI=0
-                                    iniPosJ=0
-                                    catched=False                              
-                                    isWhite=not isWhite
-                                    drawInfo()
-                                    
-                                    #time.sleep(0.5)
+                                if(app.name!=""):
+                                    spritesMatrix[loc[0]][loc[1]]=getSprite(app.name)
+                                    piecesMatrix[loc[0]][loc[1]]=app.name
+                                    missedPiecesPlayer.remove(app.name)
+                            movesCount+=1                
+                                        
+            #--- computer move
+            if(not playerMove):
+                #temp = copyMatrix(piecesMatrix)
+                if(rules.IsCheckmate(piecesMatrix,AIColor)):
+                    done=True
+                move=inteligence.play(piecesMatrix,AIColor)
+                
+                iniPos = move[0]
+                finPos = move[1]
+                sprite = spritesMatrix[iniPos[0]][iniPos[1]]
+                piece = piecesMatrix[iniPos[0]][iniPos[1]]
+                iniCoord = gameMatrix[iniPos[0]][iniPos[1]]
+                finCoord = gameMatrix[finPos[0]][finPos[1]]
 
-                                    move=inteligencia.play(piecesMatrix,"Negro")
-                                    iniPos = move[0]
-                                    finPos = move[1]
-                                    sprite = spritesMatrix[iniPos[0]][iniPos[1]]
-                                    piece = piecesMatrix[iniPos[0]][iniPos[1]]
-                                    iniCoord = gameMatrix[iniPos[0]][iniPos[1]]
-                                    finCoord = gameMatrix[finPos[0]][finPos[1]]
-                                    spritesMatrix[iniPos[0]][iniPos[1]]=""
-                                    piecesMatrix[iniPos[0]][iniPos[1]]=""
-                                    moveAnimation(sprite,iniCoord[0],iniCoord[1],finCoord[0],finCoord[1],spritesMatrix)
-                                    spritesMatrix[finPos[0]][finPos[1]]=sprite
-                                    piecesMatrix[finPos[0]][finPos[1]]=piece
-                                    strMove = str(movesCount)+". "+piece+"  "+converIndCol(iniPos[1])+":"+converIndFil(iniPos[0])+" -> "+converIndCol(finPos[0])+":"+converIndFil(finPos[0])
-                                    log += strMove+"\n"
-                                    drawMessage(strMove)
-                                    isWhite=not isWhite
-                                    drawInfo()
+                #temp[finPos[0]][finPos[1]]=piece
+                #if(not rules.IsInCheck(temp,AIColor)):
+                spritesMatrix[iniPos[0]][iniPos[1]]=""
+                piecesMatrix[iniPos[0]][iniPos[1]]=""                    
+                if(playerColor[0] in piecesMatrix[finPos[0]][finPos[1]] and not('P' in piecesMatrix[finPos[0]][finPos[1]])):
+                    missedPiecesPlayer.append(piecesMatrix[finPos[0]][finPos[1]])                                    
+                moveAnimation(sprite,iniCoord[0],iniCoord[1],finCoord[0],finCoord[1],spritesMatrix)
+                spritesMatrix[finPos[0]][finPos[1]]=sprite
+                piecesMatrix[finPos[0]][finPos[1]]=piece
+                if("BP" == piece and finPos[0]==0 ) or ("NP" == piece and finPos[0]==7):
+                    pieceName=inteligence.getMaxMissedPiece(missedPiecesAI)
+                    spritesMatrix[finPos[0]][finPos[1]]=getSprite(pieceName)
+                    piecesMatrix[finPos[0]][finPos[1]]=pieceName
+                    missedPiecesAI.remove(pieceName)
+                strMove = str(movesCount)+". "+piece+"  "+converIndCol(iniPos[1])+":"+converIndFil(iniPos[0])+" -> "+converIndCol(finPos[0])+":"+converIndFil(finPos[0])
+                log += strMove+"\n"
+                drawMessage(strMove)
+                playerMove=not playerMove
+                drawInfo()
+                movesCount+=1
+                            
 
 
                             
