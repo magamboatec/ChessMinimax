@@ -1,0 +1,9 @@
+StartColor: Negro
+AIColor: Blanco
+pieces location
+N R g 8
+N D a 8
+N P a 7
+B D a 3
+B P f 3
+B R f 2

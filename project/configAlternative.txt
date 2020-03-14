@@ -1,7 +1,0 @@
-StartColor: Blanco
-AIColor: Blanco
-pieces location
-N R g 1
-N D a 8
-B D a 3
-B R f 2

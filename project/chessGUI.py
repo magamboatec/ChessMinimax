@@ -339,10 +339,10 @@ def drawInfo():
     text = font.render("Color AI: "+AIColor, 1, (20, 20, 20))
     gameDisplay.blit(text, (1050,65)) 
     if playerMove:
-        text = font.render("Juega: Blanco", 1, (20, 20, 20))
+        text = font.render("Juega: "+playerColor, 1, (20, 20, 20))
         gameDisplay.blit(text, (1050,110))
     else:
-        text = font.render("Juega: Negro", 1, (20, 20, 20))
+        text = font.render("Juega:"+AIColor, 1, (20, 20, 20))
         gameDisplay.blit(text, (1050,110))        
 """
 ciclo de ejecucion
@@ -362,7 +362,6 @@ def execute():
     startCol=FileManager.getStartColor()
     AICol=FileManager.getAIColor()
     inteligence = AI()
-    
     if(AICol==startCol):
         playerMove=False
     else:
@@ -406,7 +405,7 @@ def execute():
                     catched= False
                 coorX=roundBy75(pygame.mouse.get_pos()[0])
                 coorY=roundBy75(pygame.mouse.get_pos()[1])
-                loc=buscarIndice(coorX,coorY) 
+                loc=buscarIndice(coorX,coorY)
                 if(event.button == 1 and playerMove and loc!=(-1,-1)):
                     if(not catched):   
                         iniPosI=loc[0]

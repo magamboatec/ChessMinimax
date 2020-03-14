@@ -8,7 +8,7 @@ class AI:
         rules = Rules()
         for i in range(8):
             for j in range(8):
-                if(rules.IsLegalMove(piece,piecesMatrix,(Pos[0],Pos[1]),(i,j))==True):
+                if(rules.IsLegalMove(piece,piecesMatrix,(Pos[0],Pos[1]),(i,j))):
                     movimientos.append((i,j))
         return movimientos
 
@@ -19,8 +19,7 @@ class AI:
         else:
             myCol='B'
             enemyCol='N'
-        moves={}
-        real=[]
+            
         moves=[]
         for row_1 in range(8):
             for col_1 in range(8):
@@ -41,8 +40,7 @@ class AI:
                         if len(tempMoves2)>=1:
                             for pos_2 in tempMoves2:
                                 value =self.getStateValue(self.getMove(iteration2,(row_2,col_2),pos_2),myCol)
-                                move[2].append([((row_2,col_2),pos_2),value,[]])
-                     
+                                move[2].append([((row_2,col_2),pos_2),value,[]])        
 
         for move in moves:
             value=self.getMinState(move[2])[1]
@@ -52,7 +50,7 @@ class AI:
  
 
     def getStateValue(self,state,myCol):
-        if 'N' in myCol:
+        if myCol=='N':
             myCol='N'
             enemyCol='B'
         else:
@@ -60,7 +58,7 @@ class AI:
             enemyCol='N'       
         res=0
         res+=self.getStateValueAux(state,myCol)
-        res-=(self.getStateValueAux(state,enemyCol)/2)          
+        res-=(self.getStateValueAux(state,enemyCol))*(6/8)          
         return res
     
     def getStateValueAux(self,state,myCol):    
@@ -71,11 +69,12 @@ class AI:
                 if(myCol in col):
                     res+=getPieceValue(col)
                 if(col=="NR" and myCol=='N'):
-                    isEnemyKing =True
+                    isMyKing =True
                 if(col=="BR" and myCol=='B'):
-                    isEnemyKing =True                    
+                    isMyKing =True
+           
         if(not isMyKing):
-            res-=0            
+            res-=10000            
         return res
     
     def getMove(self,board,posIni,posFin):
@@ -97,6 +96,7 @@ class AI:
         return maxState
     
     def getMinState(self,states):
+        
         minState = states[0]
         for state in states:
             if(state[1]<minState[1]):
