@@ -376,14 +376,24 @@ def execute():
     missedPiecesAI=FileManager.getMissedPieces(iniMatrix,AIColor)
     missedPiecesPlayer=FileManager.getMissedPieces(iniMatrix,playerColor)
     drawInfo()
-    
+    isMusicPlaying=True
     while not done:
         
-        for event in pygame.event.get():
+s        for event in pygame.event.get():
             
             if event.type == pygame.QUIT:
                 done = True
-
+            if event.type == pygame.KEYDOWN:
+                if(event.key==27):
+                    done = True
+                elif(event.key==109 or event.key==32):
+                    if(isMusicPlaying):
+                        pygame.mixer.music.stop()
+                        isMusicPlaying=False
+                    else:
+                        pygame.mixer.music.play(-1)
+                        isMusicPlaying=True
+                
             if event.type == pygame.MOUSEBUTTONDOWN:
                 
                 if(event.button== 4):
@@ -458,7 +468,7 @@ def execute():
                 #temp = copyMatrix(piecesMatrix)
                 #if(rules.IsCheckmate(piecesMatrix,AIColor)):
                     #done=True
-                move=inteligence.play(piecesMatrix,AIColor)
+                move = inteligence.play(piecesMatrix,AIColor)
                 iniPos = move[0]
                 finPos = move[1]
                 sprite = spritesMatrix[iniPos[0]][iniPos[1]]
@@ -480,7 +490,7 @@ def execute():
                     spritesMatrix[finPos[0]][finPos[1]]=getSprite(pieceName)
                     piecesMatrix[finPos[0]][finPos[1]]=pieceName
                     missedPiecesAI.remove(pieceName)
-                strMove = str(movesCount)+". "+piece+"  "+converIndCol(iniPos[1])+":"+converIndFil(iniPos[0])+" -> "+converIndCol(finPos[0])+":"+converIndFil(finPos[0])
+                strMove = str(movesCount)+". "+piece+"  "+converIndCol(iniPos[1])+":"+converIndFil(iniPos[0])+" -> "+converIndCol(finPos[1])+":"+converIndFil(finPos[0])
                 log += strMove+"\n"
                 drawMessage(strMove)
                 playerMove=not playerMove

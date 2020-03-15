@@ -1,53 +1,59 @@
 from Rules import Rules
 import random
+from math import inf
 
 class AI:
-    
-    def movimientosPosibles(self,piece,piecesMatrix,Pos):
-        movimientos = []
-        rules = Rules()
+    def __init__(self):
+        self.rules = Rules()
+    def movimientosPosibles(self,piece,board,Pos,myCol,isTerminal):
+        moves = []
         for i in range(8):
             for j in range(8):
-                if(rules.IsLegalMove(piece,piecesMatrix,(Pos[0],Pos[1]),(i,j))):
-                    movimientos.append((i,j))
-        return movimientos
+                if(self.rules.IsLegalMove(piece,board,(Pos[0],Pos[1]),(i,j))):
+                    if (isTerminal):
+                        value = self.getStateValue(self.getMove(board,(Pos[0],Pos[1]),(i,j)),myCol)
+                    else:
+                        value=0
+                    moves.append([((Pos[0],Pos[1]),(i,j)),value,[]])                    
+        return moves
 
-    def play(self,board,color):
-        if 'N' in color:
-            myCol='N'
-            enemyCol='B'
+    
+    def minimax(self,state,depth,playerMove,color):
+        if not playerMove:
+            best = [(), (), -inf]
         else:
-            myCol='B'
-            enemyCol='N'
-            
-        moves=[]
-        for row_1 in range(8):
-            for col_1 in range(8):
-                if myCol in board[row_1][col_1]:
-                    tempMoves=self.movimientosPosibles(board[row_1][col_1],board,(row_1,col_1))
-                    if len(tempMoves)>=1:
-                        for pos_1 in tempMoves:
-                            value = self.getStateValue(self.getMove(board,(row_1,col_1),pos_1),myCol)
-                            moves.append([((row_1,col_1),pos_1),value,[]])
-                          
-                            
-        for move in moves:
-            iteration2 = self.getMove(board,move[0][0],move[0][1])
-            for row_2 in range(8):
-                for col_2 in range(8):
-                    if enemyCol in iteration2[row_2][col_2]:
-                        tempMoves2=self.movimientosPosibles(iteration2[row_2][col_2],iteration2,(row_2,col_2))
-                        if len(tempMoves2)>=1:
-                            for pos_2 in tempMoves2:
-                                value =self.getStateValue(self.getMove(iteration2,(row_2,col_2),pos_2),myCol)
-                                move[2].append([((row_2,col_2),pos_2),value,[]])        
+            best = [(), (), +inf]
 
-        for move in moves:
-            value=self.getMinState(move[2])[1]
-            move[1]=value
-                
-        return self.getMaxState(moves)[0]
- 
+        if depth == 0:
+            value = self.getStateValue(state,"Negro")
+            return [(), (), value]
+        stateCopy=copyBoard(state)
+        for row in range(8):
+            for col in range(8):
+                if color[0] in state[row][col]:
+                    for move in self.rules.GetListOfValidMoves(state,color,(row,col)):
+                        x, y = move[0], move[1]
+                        stateCopy[x][y] = stateCopy[row][col]
+                        stateCopy[row][col]=""
+                        if('N' in color):
+                            score = self.minimax(stateCopy,depth-1,not playerMove,"Blanco")
+                        else:
+                            score = self.minimax(stateCopy,depth-1,not playerMove,"Negro")
+                        score[0], score[1] = (row,col),(x,y)      
+
+                        if not playerMove:
+                            if score[2] > best[2]:
+                                best = score  # max value
+                        else:
+                            if score[2] < best[2]:
+                                best = score  # min value
+        return best	
+
+  
+    def play(self,board,color):
+        state=copyBoard(board)
+        move=self.minimax(state,4,False,color)
+        return move
 
     def getStateValue(self,state,myCol):
         if myCol=='N':
@@ -67,14 +73,7 @@ class AI:
         for row in state:
             for col in row:
                 if(myCol in col):
-                    res+=getPieceValue(col)
-                if(col=="NR" and myCol=='N'):
-                    isMyKing =True
-                if(col=="BR" and myCol=='B'):
-                    isMyKing =True
-           
-        if(not isMyKing):
-            res-=10000            
+                    res+=getPieceValue(col)     
         return res
     
     def getMove(self,board,posIni,posFin):
@@ -142,6 +141,6 @@ def getPieceValue(piece):
     elif ('D' in piece):
         return 9
     elif ('R' in piece):
-        return 300
+        return 1000
     else:
         return 0

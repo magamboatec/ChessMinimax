@@ -33,7 +33,7 @@ class Rules:
             for row in range(8):
                     for col in range(8):
                             d = (row,col)
-                            if self.IsLegalMove(board[row][col],board,fromTuple,d):
+                            if self.IsLegalMove(board[fromTuple[0]][fromTuple[1]],board,fromTuple,d):
                                     if not self.DoesMovePutPlayerInCheck(board,color,fromTuple,d):
                                             legalDestinationSpaces.append(d)
             return legalDestinationSpaces
