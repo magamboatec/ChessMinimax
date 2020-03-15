@@ -33,7 +33,7 @@ class Rules:
             for row in range(8):
                     for col in range(8):
                             d = (row,col)
-                            if self.IsLegalMove(board,color,fromTuple,d):
+                            if self.IsLegalMove(board[fromTuple[0]][fromTuple[1]],board,fromTuple,d):
                                     if not self.DoesMovePutPlayerInCheck(board,color,fromTuple,d):
                                             legalDestinationSpaces.append(d)
             return legalDestinationSpaces
@@ -229,14 +229,14 @@ class Rules:
     def IsInCheck(self,board,color):
             #check if 'color' is in check
             #scan through squares for all enemy pieces; if there IsLegalMove to color's king, then return True.
-            if color == "Black":
+            if color == "Negro":
                     myColor = 'N'
                     enemyColor = 'B'
-                    enemyColorFull = "white"
+                    enemyColorFull = "Negro"
             else:
                     myColor = 'B'
                     enemyColor = 'N'
-                    enemyColorFull = "Black"
+                    enemyColorFull = "Blanco"
 
             kingTuple = (0,0)
             #First, get current player's king location    
@@ -251,6 +251,6 @@ class Rules:
                     for col in range(8):
                             piece = board[row][col]
                             if enemyColor in piece:
-                                    if self.IsLegalMove(board,enemyColorFull,(row,col),kingTuple):
+                                    if self.IsLegalMove(piece,board,(row,col),kingTuple):
                                             return True
             return False

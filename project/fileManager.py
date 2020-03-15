@@ -74,7 +74,22 @@ class FileManager():
         listPos=strFile.split("\n")
         startColor=listPos[1]
         return startColor.split(" ")[1]
-    
+
+    def getMissedPieces(matrix,color):
+        whiteList=["BD","BT","BT","BA","BA","BC","BC"]
+        blackList=["ND","NT","NT","NA","NA","NC","NC"]
+
+        for row in matrix:
+            for col in row:
+                if (col in whiteList):
+                    whiteList.remove(col)
+                elif (col in blackList):
+                    blackList.remove(col)
+        if ('N' in color):
+            return blackList
+        else:
+            return whiteList
+                    
     def getMatrix():
         strFile=FileManager.read("config.txt")
         listPos=strFile.split("\n")
