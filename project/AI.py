@@ -25,55 +25,59 @@ class AI:
             best = [(), (), +inf]
 
         if depth == 0:
-            value = self.getStateValue(state,"Negro")
+            value = self.getStateValue(state,color)
             return [(), (), value]
-        stateCopy=copyBoard(state)
+        
         for row in range(8):
             for col in range(8):
                 if color[0] in state[row][col]:
                     for move in self.rules.GetListOfValidMoves(state,color,(row,col)):
+                        stateCopy=copyBoard(state)
                         x, y = move[0], move[1]
-                        stateCopy[x][y] = stateCopy[row][col]
+                        stateCopy[x][y] = state[row][col]
                         stateCopy[row][col]=""
                         if('N' in color):
                             score = self.minimax(stateCopy,depth-1,not playerMove,"Blanco")
                         else:
-                            score = self.minimax(stateCopy,depth-1,not playerMove,"Negro")
+                            score = self.minimax(stateCopy,depth-1,not playerMove,"Negro")   
                         score[0], score[1] = (row,col),(x,y)      
-
                         if not playerMove:
                             if score[2] > best[2]:
                                 best = score  # max value
-                        else:
+                        else:                         
                             if score[2] < best[2]:
                                 best = score  # min value
         return best	
 
   
     def play(self,board,color):
+        
         state=copyBoard(board)
-        move=self.minimax(state,4,False,color)
+        move=self.minimax(state,2,False,color)
         return move
 
-    def getStateValue(self,state,myCol):
-        if myCol=='N':
-            myCol='N'
-            enemyCol='B'
+    def getStateValue(self,state,myColFull):
+        if myColFull=="Negro":
+            enemyColFull="Blanco"
         else:
-            myCol='B'
-            enemyCol='N'       
+            enemyColFull="Negro"       
         res=0
-        res+=self.getStateValueAux(state,myCol)
-        res-=(self.getStateValueAux(state,enemyCol))*(6/8)          
+        res+=self.getStateValueAux(state,myColFull,enemyColFull)        
+        res-=(self.getStateValueAux(state,enemyColFull,myColFull))*(1/2)
+        
+        
         return res
     
-    def getStateValueAux(self,state,myCol):    
+    def getStateValueAux(self,state,myCol,enemyCol):
         res=0
-        isMyKing =False
         for row in state:
             for col in row:
-                if(myCol in col):
+                if(myCol[0] in col):
                     res+=getPieceValue(col)     
+        if(self.rules.IsInCheck(state,enemyCol)):
+            res+= 2
+        if(self.rules.IsCheckmate(state,enemyCol)):
+            res= +inf
         return res
     
     def getMove(self,board,posIni,posFin):
@@ -140,7 +144,5 @@ def getPieceValue(piece):
         return 5
     elif ('D' in piece):
         return 9
-    elif ('R' in piece):
-        return 1000
     else:
         return 0

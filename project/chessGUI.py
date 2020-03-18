@@ -7,6 +7,7 @@ from selectionWindow import selectionWindow
 import datetime
 import tkinter as tk
 from tkinter import ttk
+from math import inf
 
 pygame.init()
 pygame.mixer.init()
@@ -96,9 +97,6 @@ def drawMessage(message):
   
     #prints a string to the area to the right of the board
     textBox.Add(message)
-    gameDisplay.blit(paperSheetImg,(800,0))
-    gameDisplay.blit(plumaImg,(990,150))
-    
     textBox.Draw()
 
     
@@ -332,18 +330,27 @@ def getSprite(name):
         return blaPeoImg
     else:
         return ""
-def drawInfo():
+def drawInfo(endGame,winnerColor):
+    gameDisplay.blit(paperSheetImg,(800,0))
+    gameDisplay.blit(plumaImg,(990,150))
     font = pygame.font.Font('freesansbold.ttf', 15)    
     text = font.render("Color Jug: "+playerColor, 1, (20, 20, 20))
     gameDisplay.blit(text, (1050,45))
     text = font.render("Color AI: "+AIColor, 1, (20, 20, 20))
-    gameDisplay.blit(text, (1050,65)) 
-    if playerMove:
+    gameDisplay.blit(text, (1050,65))
+    if(endGame):
+        text = font.render("Jaque Mate!!", 1, (20, 20, 20))
+        gameDisplay.blit(text, (1050,110))         
+        text = font.render("Ganador: "+winnerColor, 1, (20, 20, 20))
+        gameDisplay.blit(text, (1050,130))        
+    elif playerMove:
         text = font.render("Juega: "+playerColor, 1, (20, 20, 20))
         gameDisplay.blit(text, (1050,110))
     else:
         text = font.render("Juega:"+AIColor, 1, (20, 20, 20))
-        gameDisplay.blit(text, (1050,110))        
+        gameDisplay.blit(text, (1050,110))
+
+       
 """
 ciclo de ejecucion
 """
@@ -353,6 +360,8 @@ def execute():
     sprite=""
     piece =""
     done = False
+    endGame =False
+    winnerColor=""
     iniX =0
     iniY =0
     iniPosI=0
@@ -375,11 +384,12 @@ def execute():
         playerColor="Blanco"
     missedPiecesAI=FileManager.getMissedPieces(iniMatrix,AIColor)
     missedPiecesPlayer=FileManager.getMissedPieces(iniMatrix,playerColor)
-    drawInfo()
+    drawInfo(endGame,winnerColor)
+    textBox.Draw()
     isMusicPlaying=True
     while not done:
         
-s        for event in pygame.event.get():
+        for event in pygame.event.get():
             
             if event.type == pygame.QUIT:
                 done = True
@@ -399,24 +409,21 @@ s        for event in pygame.event.get():
                 if(event.button== 4):
                     if(boardSurface.collidepoint(pygame.mouse.get_pos())):
                         textBox.MoveUp()
-                        gameDisplay.blit(paperSheetImg,(800,0))
-                        gameDisplay.blit(plumaImg,(990,150))
+                        drawInfo(endGame,winnerColor)
                         textBox.Draw()
-                        drawInfo()
+                        
                 if(event.button==5):
                     if(boardSurface.collidepoint(pygame.mouse.get_pos())):
                         textBox.MoveDown()
-                        gameDisplay.blit(paperSheetImg,(800,0))
-                        gameDisplay.blit(plumaImg,(990,150))
+                        drawInfo(endGame,winnerColor)
                         textBox.Draw()
-                        drawInfo()
                     
                 if(event.button == 3):
                     catched= False
                 coorX=roundBy75(pygame.mouse.get_pos()[0])
                 coorY=roundBy75(pygame.mouse.get_pos()[1])
                 loc=buscarIndice(coorX,coorY)
-                if(event.button == 1 and playerMove and loc!=(-1,-1)):
+                if(event.button == 1 and playerMove and loc!=(-1,-1) and not(endGame)):
                     if(not catched):   
                         iniPosI=loc[0]
                         iniPosJ=loc[1]
@@ -431,7 +438,7 @@ s        for event in pygame.event.get():
                             catchSound.play()
                             catched=True                               
                     else:
-                        if(rules.IsLegalMove(piece,piecesMatrix,(iniPosI,iniPosJ),(loc[0],loc[1]))):   
+                        if(rules.IsLegalMove(piece,piecesMatrix,(iniPosI,iniPosJ),(loc[0],loc[1])) and not(rules.DoesMovePutPlayerInCheck(piecesMatrix,playerColor,(iniPosI,iniPosJ),(loc[0],loc[1])))):   
                             spritesMatrix[iniPosI][iniPosJ]=""
                             piecesMatrix[iniPosI][iniPosJ]=""
                             if(AIColor[0] in piecesMatrix[loc[0]][loc[1]] and not('P' in piecesMatrix[loc[0]][loc[1]])):
@@ -441,7 +448,7 @@ s        for event in pygame.event.get():
                             piecesMatrix[loc[0]][loc[1]]=piece
                             strMove = str(movesCount)+". "+piece+"  "+converIndCol(iniPosJ)+":"+converIndFil(iniPosI)+" -> "+converIndCol(loc[1])+":"+converIndFil(loc[0])
                             log += strMove+"\n"
-                            drawMessage(strMove)
+                            
                             
                             iniX = 0
                             iniY = 0
@@ -449,7 +456,8 @@ s        for event in pygame.event.get():
                             iniPosJ=0
                             catched=False                              
                             playerMove=not playerMove
-                            drawInfo()      
+                            drawInfo(endGame,winnerColor)
+                            drawMessage(strMove)
                             
                             if("BP" == piece and loc[0]==0 ) or ("NP" == piece and loc[0]==7 ) :
                                 main_window = tk.Tk()
@@ -462,40 +470,53 @@ s        for event in pygame.event.get():
                                     piecesMatrix[loc[0]][loc[1]]=app.name
                                     missedPiecesPlayer.remove(app.name)
                             movesCount+=1                
+
                                         
             #--- computer move
-            if(not playerMove):
-                #temp = copyMatrix(piecesMatrix)
-                #if(rules.IsCheckmate(piecesMatrix,AIColor)):
-                    #done=True
-                move = inteligence.play(piecesMatrix,AIColor)
-                iniPos = move[0]
-                finPos = move[1]
-                sprite = spritesMatrix[iniPos[0]][iniPos[1]]
-                piece = piecesMatrix[iniPos[0]][iniPos[1]]
-                iniCoord = gameMatrix[iniPos[0]][iniPos[1]]
-                finCoord = gameMatrix[finPos[0]][finPos[1]]
+            if(not playerMove and not endGame):
 
-                #temp[finPos[0]][finPos[1]]=piece
-                #if(not rules.IsInCheck(temp,AIColor)):
-                spritesMatrix[iniPos[0]][iniPos[1]]=""
-                piecesMatrix[iniPos[0]][iniPos[1]]=""                    
-                if(playerColor[0] in piecesMatrix[finPos[0]][finPos[1]] and not('P' in piecesMatrix[finPos[0]][finPos[1]])):
-                    missedPiecesPlayer.append(piecesMatrix[finPos[0]][finPos[1]])                                    
-                moveAnimation(sprite,iniCoord[0],iniCoord[1],finCoord[0],finCoord[1],spritesMatrix)
-                spritesMatrix[finPos[0]][finPos[1]]=sprite
-                piecesMatrix[finPos[0]][finPos[1]]=piece
-                if("BP" == piece and finPos[0]==0 ) or ("NP" == piece and finPos[0]==7):
-                    pieceName=inteligence.getMaxMissedPiece(missedPiecesAI)
-                    spritesMatrix[finPos[0]][finPos[1]]=getSprite(pieceName)
-                    piecesMatrix[finPos[0]][finPos[1]]=pieceName
-                    missedPiecesAI.remove(pieceName)
-                strMove = str(movesCount)+". "+piece+"  "+converIndCol(iniPos[1])+":"+converIndFil(iniPos[0])+" -> "+converIndCol(finPos[1])+":"+converIndFil(finPos[0])
-                log += strMove+"\n"
-                drawMessage(strMove)
-                playerMove=not playerMove
-                drawInfo()
-                movesCount+=1
+                move = inteligence.play(piecesMatrix,AIColor)
+                
+                if move[2]==-inf:
+                    winnerColor=playerColor
+                    endGame = True
+                    drawInfo(endGame,winnerColor)
+                    textBox.Draw()                    
+                    
+                else:    
+                    iniPos = move[0]
+                    finPos = move[1]
+                    sprite = spritesMatrix[iniPos[0]][iniPos[1]]
+                    piece = piecesMatrix[iniPos[0]][iniPos[1]]
+                    iniCoord = gameMatrix[iniPos[0]][iniPos[1]]
+                    finCoord = gameMatrix[finPos[0]][finPos[1]]
+
+                    spritesMatrix[iniPos[0]][iniPos[1]]=""
+                    piecesMatrix[iniPos[0]][iniPos[1]]=""                    
+                    if(playerColor[0] in piecesMatrix[finPos[0]][finPos[1]] and not('P' in piecesMatrix[finPos[0]][finPos[1]])):
+                        missedPiecesPlayer.append(piecesMatrix[finPos[0]][finPos[1]])                                    
+                    moveAnimation(sprite,iniCoord[0],iniCoord[1],finCoord[0],finCoord[1],spritesMatrix)
+                    spritesMatrix[finPos[0]][finPos[1]]=sprite
+                    piecesMatrix[finPos[0]][finPos[1]]=piece
+                    if("BP" == piece and finPos[0]==0 ) or ("NP" == piece and finPos[0]==7):
+                        pieceName=inteligence.getMaxMissedPiece(missedPiecesAI)
+                        spritesMatrix[finPos[0]][finPos[1]]=getSprite(pieceName)
+                        piecesMatrix[finPos[0]][finPos[1]]=pieceName
+                        missedPiecesAI.remove(pieceName)
+                    strMove = str(movesCount)+". "+piece+"  "+converIndCol(iniPos[1])+":"+converIndFil(iniPos[0])+" -> "+converIndCol(finPos[1])+":"+converIndFil(finPos[0])
+                    log += strMove+"\n"
+                    
+                    playerMove=not playerMove
+                    drawInfo(endGame,winnerColor)
+                    drawMessage(strMove)
+                    movesCount+=1
+            if(rules.IsCheckmate(piecesMatrix,playerColor)):
+                    winnerColor=AIColor
+                    endGame = True
+                    drawInfo(endGame,winnerColor)
+                    textBox.Draw() 
+                
+                
                             
 
 

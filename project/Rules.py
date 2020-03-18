@@ -30,12 +30,24 @@ class Rules:
 
     def GetListOfValidMoves(self,board,color,fromTuple):
             legalDestinationSpaces = []
-            for row in range(8):
-                    for col in range(8):
-                            d = (row,col)
-                            if self.IsLegalMove(board[fromTuple[0]][fromTuple[1]],board,fromTuple,d):
-                                    if not self.DoesMovePutPlayerInCheck(board,color,fromTuple,d):
-                                            legalDestinationSpaces.append(d)
+            if('T' in board[fromTuple[0]][fromTuple[1]]):
+                for row in range(8):
+                        d =(row,fromTuple[1]) 
+                        if self.IsLegalMove(board[fromTuple[0]][fromTuple[1]],board,fromTuple,d):
+                                if not self.DoesMovePutPlayerInCheck(board,color,fromTuple,d):
+                                        legalDestinationSpaces.append(d)
+                for col in range(8):
+                        d =(fromTuple[0],col) 
+                        if self.IsLegalMove(board[fromTuple[0]][fromTuple[1]],board,fromTuple,d):
+                                if not self.DoesMovePutPlayerInCheck(board,color,fromTuple,d):
+                                        legalDestinationSpaces.append(d)
+            else:
+                for row in range(8):
+                        for col in range(8):
+                                d = (row,col)
+                                if self.IsLegalMove(board[fromTuple[0]][fromTuple[1]],board,fromTuple,d):
+                                        if not self.DoesMovePutPlayerInCheck(board,color,fromTuple,d):
+                                                legalDestinationSpaces.append(d)
             return legalDestinationSpaces
 	    
     def IsLegalMove(self,sprite,board,fromTuple,toTuple):
@@ -239,13 +251,14 @@ class Rules:
                     enemyColorFull = "Blanco"
 
             kingTuple = (0,0)
-            #First, get current player's king location    
+            #First, get current player's king location
+            #if(var):
+             #   print("myColor",myColor)
             for row in range(8):
                     for col in range(8):
                             piece = board[row][col]
                             if 'R' in piece and myColor in piece:
                                     kingTuple = (row,col)
-
             #Check if any of enemy player's pieces has a legal move to current player's king
             for row in range(8):
                     for col in range(8):
@@ -254,3 +267,13 @@ class Rules:
                                     if self.IsLegalMove(piece,board,(row,col),kingTuple):
                                             return True
             return False
+        
+def printM(matrix):
+    for i in matrix:
+        for j in i:
+            if j=="":
+                print("__", end=" ")
+            else:
+                print(j,end=" ")
+        print()
+        
