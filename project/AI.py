@@ -5,18 +5,9 @@ from math import inf
 class AI:
     def __init__(self):
         self.rules = Rules()
-    def movimientosPosibles(self,piece,board,Pos,myCol,isTerminal):
-        moves = []
-        for i in range(8):
-            for j in range(8):
-                if(self.rules.IsLegalMove(piece,board,(Pos[0],Pos[1]),(i,j))):
-                    if (isTerminal):
-                        value = self.getStateValue(self.getMove(board,(Pos[0],Pos[1]),(i,j)),myCol)
-                    else:
-                        value=0
-                    moves.append([((Pos[0],Pos[1]),(i,j)),value,[]])                    
-        return moves
-
+        self.alpha = [(),(),-inf]
+        self.beta = [(),(),inf]
+        self.missedPieces =[]
     
     def minimax(self,state,depth,playerMove,color):
         if not playerMove:
@@ -25,6 +16,10 @@ class AI:
             best = [(), (), +inf]
 
         if depth == 0:
+            if 'N' in color:
+                color = "Blanco"
+            else:
+                color = "Negro"
             value = self.getStateValue(state,color)
             return [(), (), value]
         
@@ -44,16 +39,29 @@ class AI:
                         if not playerMove:
                             if score[2] > best[2]:
                                 best = score  # max value
-                        else:                         
+                            if best[2] > self.alpha[2]:
+                                self.alpha = best
+                        else:
+                            self.alpha = [(),(),-inf]
                             if score[2] < best[2]:
                                 best = score  # min value
-        return best	
+                            if best[2] < self.beta[2]:
+                                self.beta = best
+                        if self.beta[2]-self.alpha[2]<=0:
+                            return best
 
-  
+        if not playerMove:
+            self.alpha = [(),(),-inf]
+        else:
+            self.beta = [(),(),inf]
+        return best
+         
     def play(self,board,color):
         
         state=copyBoard(board)
-        move=self.minimax(state,2,False,color)
+        move=self.minimax(state,3,False,color) 
+        self.alpha = [(),(),-inf]
+        self.beta = [(),(),inf]
         return move
 
     def getStateValue(self,state,myColFull):
@@ -64,20 +72,14 @@ class AI:
         res=0
         res+=self.getStateValueAux(state,myColFull,enemyColFull)        
         res-=(self.getStateValueAux(state,enemyColFull,myColFull))*(1/2)
-        
-        
         return res
     
     def getStateValueAux(self,state,myCol,enemyCol):
         res=0
-        for row in state:
-            for col in row:
-                if(myCol[0] in col):
-                    res+=getPieceValue(col)     
-        if(self.rules.IsInCheck(state,enemyCol)):
-            res+= 2
-        if(self.rules.IsCheckmate(state,enemyCol)):
-            res= +inf
+        for row in range(8):
+            for col in range(8):
+                if(myCol[0] in state[row][col]):
+                    res+=self.getPieceValue(state[row][col],row)
         return res
     
     def getMove(self,board,posIni,posFin):
@@ -87,37 +89,33 @@ class AI:
         tempBoard[posFin[0]][posFin[1]] = piece
         return tempBoard
 
-        
-    def getMaxState(self,states):
 
-        maxState = states[0]
-        for state in states:
-            if(state[1]>maxState[1]):
-                maxState=state
-            elif(state[1]==maxState[1]):
-                maxState=random.choice([state,maxState])
-        return maxState
-    
-    def getMinState(self,states):
-        
-        minState = states[0]
-        for state in states:
-            if(state[1]<minState[1]):
-                minState=state
-            elif(state[1]==minState[1]):
-                minState=random.choice([state,minState])                
-        return minState   
-
-    def getMaxMissedPiece(self,pieces):
+    def getMaxMissedPiece(self):
         values = []
-        for i in range(len(pieces)):
-            values.append(getPieceValue(pieces[i]))
+        for i in range(len(self.missedPieces)):
+            values.append(self.getPieceValue(self.missedPieces[i],0))
 
         maxInd=values.index(max(values))
         
-        return pieces[maxInd]
+        return self.missedPieces[maxInd]
 
-
+    def getPieceValue(self,piece,row):
+        if ('P' in piece):
+            if len(self.missedPieces)>0:
+                if('N' in piece):
+                    return (row)*0.1
+                else:
+                    return (8-row)*0.1
+            else:
+                return 1
+        elif('A' in piece) or ('C' in piece) :
+            return 3
+        elif('T' in piece):
+            return 5
+        elif ('D' in piece):
+            return 9
+        else:
+            return 0
 
 def copyBoard(board):
     newBoard = []
@@ -135,14 +133,4 @@ def printM(matrix):
                 print(j,end=" ")
         print()
         
-def getPieceValue(piece):
-    if ('P' in piece):
-        return 1
-    elif('A' in piece) or ('C' in piece) :
-        return 3
-    elif('T' in piece):
-        return 5
-    elif ('D' in piece):
-        return 9
-    else:
-        return 0
+
