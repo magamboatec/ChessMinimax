@@ -7,7 +7,6 @@ from selectionWindow import selectionWindow
 import datetime
 import tkinter as tk
 from tkinter import ttk
-from time import sleep
 
 pygame.init()
 pygame.mixer.init()
@@ -41,7 +40,7 @@ negPeoImg = pygame.transform.scale(pygame.image.load("images//NP.png"),(50,50))
 blaPeoImg = pygame.transform.scale(pygame.image.load("images//BP.png"),(50,50))
 brownSquare = pygame.transform.scale(pygame.image.load("images//brown_square.jpg"),(75,75))
 whiteSquare = pygame.transform.scale(pygame.image.load("images//white_square.jpg"),(75,75))
-cyanSquare = pygame.transform.scale(pygame.image.load("images//blue_square.jpg"),(75,75))
+cyanSquare = pygame.transform.scale(pygame.image.load("images//blue_square.png"),(75,75))
 bordeImg = pygame.transform.scale(pygame.image.load("images//borde.png"),(690,690))
 fondoImg = pygame.image.load("images//fondo.jpg")
 paperSheetImg = pygame.transform.scale(pygame.image.load("images//paperSheet.png"),(int(423*1.2),int(595*1.2)))
@@ -214,8 +213,7 @@ def moveAnimation(sprite,x,y,xMeta,yMeta,tempMatrix):
         if x<xMeta:
             x+=5
         elif x>xMeta:
-            x-=5
-            
+            x-=5            
         if y<yMeta:
             y+=5
         elif y>yMeta:

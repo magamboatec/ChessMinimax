@@ -1,6 +1,7 @@
 from Rules import Rules
 import random
 from math import inf
+import time
 
 class AI:
     def __init__(self):
@@ -8,7 +9,7 @@ class AI:
         self.alpha = [(),(),-inf]
         self.beta = [(),(),inf]
         self.missedPieces =[]
-    
+        
     def minimax(self,state,depth,playerMove,color):
         if not playerMove:
             best = [(), (), -inf]
@@ -54,12 +55,10 @@ class AI:
             self.alpha = [(),(),-inf]
         else:
             self.beta = [(),(),inf]
-        return best
-         
+        return best         
     def play(self,board,color):
-        
         state=copyBoard(board)
-        move=self.minimax(state,3,False,color) 
+        move=self.minimax(state,3,False,color)
         self.alpha = [(),(),-inf]
         self.beta = [(),(),inf]
         return move
@@ -103,9 +102,9 @@ class AI:
         if ('P' in piece):
             if len(self.missedPieces)>0:
                 if('N' in piece):
-                    return (row)*0.1
+                    return (row)*0.02
                 else:
-                    return (8-row)*0.1
+                    return (8-row)*0.02
             else:
                 return 1
         elif('A' in piece) or ('C' in piece) :

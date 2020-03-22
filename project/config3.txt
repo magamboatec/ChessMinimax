@@ -6,6 +6,4 @@ N T a 7
 N D c 8
 N P a 8
 B P d 2
-B T b 3
-B C d 5
 B R b 1
