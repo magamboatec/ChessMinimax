@@ -486,7 +486,7 @@ def execute():
             #--- computer move
             if(not playerMove and not endGame):
                 move = inteligence.play(piecesMatrix,AIColor)
-                if(move[1]==()):
+                if(move[2]<-10000):
                     winnerColor=playerColor
                     endGame = True
                     drawInfo(endGame,winnerColor)
