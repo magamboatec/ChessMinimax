@@ -232,9 +232,9 @@ def printM(matrix):
     for i in matrix:
         for j in i:
             if j=="":
-                print("0", end=" ")
+                print("__", end=" ")
             else:
-                print("1",end=" ")
+                print(j,end=" ")
         print()
 
 def locate(matrix):
@@ -465,7 +465,10 @@ def execute():
                                 main_window = tk.Tk()
                                 app = selectionWindow(main_window)
                                 app.setItems(missedPiecesPlayer)
-                                app.mainloop()
+                                main_window.attributes('-topmost', True)
+                                main_window.mainloop()
+                                
+                                            
                                 
                                 if(app.name!=""):
                                     spritesMatrix[loc[0]][loc[1]]=getSprite(app.name)
@@ -483,7 +486,11 @@ def execute():
             #--- computer move
             if(not playerMove and not endGame):
                 move = inteligence.play(piecesMatrix,AIColor)
-                                                    
+                if(move[1]==()):
+                    winnerColor=playerColor
+                    endGame = True
+                    drawInfo(endGame,winnerColor)
+                    textBox.Draw() 
                 iniPos = move[0]
                 finPos = move[1]
                 sprite = spritesMatrix[iniPos[0]][iniPos[1]]

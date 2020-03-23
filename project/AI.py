@@ -40,13 +40,12 @@ class AI:
                         if not playerMove:
                             if score[2] > best[2]:
                                 best = score  # max value
-                            if best[2] > self.alpha[2]:
+                            if best[2] >= self.alpha[2]:
                                 self.alpha = best
                         else:
-                            self.alpha = [(),(),-inf]
                             if score[2] < best[2]:
                                 best = score  # min value
-                            if best[2] < self.beta[2]:
+                            if best[2] <= self.beta[2]:
                                 self.beta = best
                         if self.beta[2]-self.alpha[2]<=0:
                             return best
@@ -58,7 +57,9 @@ class AI:
         return best         
     def play(self,board,color):
         state=copyBoard(board)
+        #start_time = time.time()
         move=self.minimax(state,3,False,color)
+        #print("--- %s seconds ---" % (time.time() - start_time))
         self.alpha = [(),(),-inf]
         self.beta = [(),(),inf]
         return move

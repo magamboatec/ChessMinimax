@@ -1,42 +1,76 @@
-import tkinter as tk
-from tkinter import ttk
-import pygame
-negReyImg = pygame.transform.scale(pygame.image.load("images//NR.png"),(75,75))
-blaReyImg = pygame.transform.scale(pygame.image.load("images//BR.png"),(75,75))
-negTorImg = pygame.transform.scale(pygame.image.load("images//NT.png"),(55,55))
-blaTorImg = pygame.transform.scale(pygame.image.load("images//BT.png"),(55,55))
-negCabImg = pygame.transform.scale(pygame.image.load("images//NC.png"),(60,60))
-blaCabImg = pygame.transform.scale(pygame.image.load("images//BC.png"),(60,60))
-negAlfImg = pygame.transform.scale(pygame.image.load("images//NA.png"),(65,65))
-blaAlfImg = pygame.transform.scale(pygame.image.load("images//BA.png"),(65,65))
-negDamImg = pygame.transform.scale(pygame.image.load("images//ND.png"),(68,68))
-blaDamImg = pygame.transform.scale(pygame.image.load("images//BD.png"),(68,68))
-negPeoImg = pygame.transform.scale(pygame.image.load("images//NP.png"),(50,50))
-blaPeoImg = pygame.transform.scale(pygame.image.load("images//BP.png"),(50,50))
+from tkinter import * 
+from tkinter.ttk import *
 
-class selectionWindow(ttk.Frame):
+class selectionWindow():
     
     def __init__(self, main_window):
-        super().__init__(main_window)
+        self.negTorImg = PhotoImage(file = "images//NT.png")
+        self.negTorImg = resizeImg(self.negTorImg,'T')
+        self.blaTorImg = PhotoImage(file = "images//BT.png")
+        self.blaTorImg = resizeImg(self.blaTorImg,'T')
+        self.negCabImg = PhotoImage(file = "images//NC.png")
+        self.negCabImg = resizeImg(self.negCabImg,'C')
+        self.blaCabImg = PhotoImage(file = "images//BC.png")
+        self.blaCabImg = resizeImg(self.blaCabImg,'C')
+        self.negAlfImg = PhotoImage(file = "images//NA.png")
+        self.negAlfImg = resizeImg(self.negAlfImg,'A')
+        self.blaAlfImg = PhotoImage(file = "images//BA.png")
+        self.blaAlfImg = resizeImg(self.blaAlfImg,'A')
+        self.negDamImg = PhotoImage(file = "images//ND.png")
+        self.negDamImg = resizeImg(self.negDamImg,'D')
+        self.blaDamImg = PhotoImage(file = "images//BD.png")
+        self.blaDamImg = resizeImg(self.blaDamImg,'D')
         main_window.title("Seleccione una pieza")
         self.root = main_window
-        self.name ="" 
-        self.listbox = tk.Listbox(self, name='lb')
-        self.listbox.bind('<<ListboxSelect>>', self.onselect)
-        self.listbox.pack()
-        self.pack()
+        self.name =""
         
         
     def setItems(self,items):
-        self.listbox.insert(0, *items)
+        for i in range(len(items)):
+            tempImg = self.getImg(items[i])
+            Button(self.root, text=items[i] , image = tempImg,command=lambda pName =items[i]: self.onSelect(pName)).grid(row=0, column=i)
         
-    def onselect(self,evt):
-        w = evt.widget
-        index = int(w.curselection()[0])
-        self.name = w.get(index)
+    def onSelect(self,pieceName):
+        self.name = pieceName
         self.root.destroy()
         
 
         
-
-
+    def getImg(self,name):
+        if name=="NR":
+            return self.negReyImg
+        elif name=="BR":
+            return self.blaReyImg
+        elif name=="NT":
+            return self.negTorImg
+        elif  name=="BT":
+            return self.blaTorImg
+        elif name=="NC":
+            return self.negCabImg
+        elif name=="BC":
+            return  self.blaCabImg
+        elif name=="NA" :
+            return self.negAlfImg
+        elif name=="BA":
+            return  self.blaAlfImg
+        elif name=="ND" :
+            return self.negDamImg
+        elif name=="BD":
+            return self.blaDamImg
+        elif name=="NP":
+            return self.negPeoImg
+        elif name=="BP":
+            return self.blaPeoImg
+        else:
+            return ""
+        
+def resizeImg(img,typ):
+    if ('A' in typ):
+        return img.subsample(14, 14) 
+    if ('C' in typ):
+        return img.subsample(16,16)
+    if ('D' in typ):
+        return img.subsample(12, 12)
+    else:
+        return img.subsample(3, 3)
+        
