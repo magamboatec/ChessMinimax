@@ -4,6 +4,7 @@ from ScrollingTextBox import ScrollingTextBox
 from fileManager import FileManager
 from AI import AI
 from selectionWindow import selectionWindow
+from endWindow import endWindow
 import datetime
 import tkinter as tk
 from tkinter import ttk
@@ -19,6 +20,9 @@ pygame.mixer.music.play(-1)
 blackColor = (0,0,0)
 gameDisplay = pygame.display.set_mode((1200,760),0,32)
 pygame.display.set_caption("Chess solver")
+programIcon = pygame.image.load('images//chess.png')
+pygame.display.set_icon(programIcon)
+
 gameDisplay.fill((0,0,0))
 clock = pygame.time.Clock()
 rules = Rules()
@@ -341,7 +345,12 @@ def drawInfo(endGame,winnerColor):
         text = font.render("Jaque Mate!!", 1, (20, 20, 20))
         gameDisplay.blit(text, (1050,110))         
         text = font.render("Ganador: "+winnerColor, 1, (20, 20, 20))
-        gameDisplay.blit(text, (1050,130))        
+        gameDisplay.blit(text, (1050,130))
+        
+        main_window = tk.Tk()
+        app = endWindow(main_window,("Ganador: "+winnerColor))
+        main_window.attributes('-topmost', True)
+        main_window.mainloop()        
     elif playerMove:
         text = font.render("Juega: "+playerColor, 1, (20, 20, 20))
         gameDisplay.blit(text, (1050,110))
@@ -517,11 +526,11 @@ def execute():
                 drawInfo(endGame,winnerColor)
                 drawMessage(strMove)
                 movesCount+=1
-            if(rules.IsCheckmate(piecesMatrix,playerColor)):
-                    winnerColor=AIColor
-                    endGame = True
-                    drawInfo(endGame,winnerColor)
-                    textBox.Draw() 
+                if(rules.IsCheckmate(piecesMatrix,playerColor)):
+                        winnerColor=AIColor
+                        endGame = True
+                        drawInfo(endGame,winnerColor)
+                        textBox.Draw() 
                        
  
         drawMatrix()
