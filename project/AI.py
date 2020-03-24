@@ -123,22 +123,32 @@ class AI:
         return tempBoard
 
 
-    def getMaxMissedPiece(self):
+    def getMaxMissedPiece(self,color):
         values = []
+        if(len(self.missedPieces)==0):
+            if ('N' in color):
+                return "NP"
+            else:
+                return "BP"
         for i in range(len(self.missedPieces)):
             values.append(self.getPieceValue(self.missedPieces[i],0))
-
-        maxInd=values.index(max(values))
         
-        return self.missedPieces[maxInd]
+        maxInd=values.index(max(values))
+        newPiece =self.missedPieces[maxInd]
+        self.missedPieces.remove(newPiece)
+        return newPiece
 
     def getPieceValue(self,piece,row):
         if ('P' in piece):
             if len(self.missedPieces)>0:
                 if('N' in piece):
-                    return (row)*0.02
+                    if(row==0):
+                        return 5
+                    return 1+((row)*0.1)
                 else:
-                    return (8-row)*0.02
+                    if(row==8):
+                        return 5                    
+                    return 1+((8-row)*0.1)
             else:
                 return 1
         elif('A' in piece) or ('C' in piece) :

@@ -224,10 +224,7 @@ def moveAnimation(sprite,x,y,xMeta,yMeta,tempMatrix):
             y-=5
         drawMatrix()
         fill(tempMatrix)
-        if(y<570):
-            gameDisplay.blit(sprite,(x+10,y+10))
-        else:
-            gameDisplay.blit(sprite,(x+5,y+5))
+        gameDisplay.blit(sprite,(x+5,y+5))
         pygame.display.update()
         clock.tick(100)
         count+=1
@@ -369,7 +366,7 @@ def execute():
     piece =""
     done = False
     endGame =False
-    winnerColor=""
+    winnerColor="Partida sin concluir"
     iniX =0
     iniY =0
     iniPosI=0
@@ -484,18 +481,23 @@ def execute():
                                     piecesMatrix[loc[0]][loc[1]]=app.name
                                     missedPiecesPlayer.remove(app.name)
                             movesCount+=1
+                            drawMatrix()
+                            fill(spritesMatrix)
+                            pygame.display.update()
                             if(rules.IsCheckmate(piecesMatrix,AIColor)):
                                     winnerColor=playerColor
                                     endGame = True
                                     drawInfo(endGame,winnerColor)
                                     textBox.Draw()
+
                                    
 
-                                        
+
             #--- computer move
             if(not playerMove and not endGame):
                 move = inteligence.play(piecesMatrix,AIColor)
                 if(move[2]<-10000):
+                    print("**forced mate**")
                     winnerColor=playerColor
                     endGame = True
                     drawInfo(endGame,winnerColor)
@@ -515,18 +517,19 @@ def execute():
                 spritesMatrix[finPos[0]][finPos[1]]=sprite
                 piecesMatrix[finPos[0]][finPos[1]]=piece
                 if("BP" == piece and finPos[0]==0 ) or ("NP" == piece and finPos[0]==7):
-                    pieceName=inteligence.getMaxMissedPiece()
+                    pieceName=inteligence.getMaxMissedPiece(AIColor)
                     spritesMatrix[finPos[0]][finPos[1]]=getSprite(pieceName)
                     piecesMatrix[finPos[0]][finPos[1]]=pieceName
-                    inteligence.missedPieces.remove(pieceName)
                 strMove = str(movesCount)+". "+piece+"  "+converIndCol(iniPos[1])+":"+converIndFil(iniPos[0])+" -> "+converIndCol(finPos[1])+":"+converIndFil(finPos[0])
                 log += strMove+"\n"
-                
                 playerMove=not playerMove
                 drawInfo(endGame,winnerColor)
                 drawMessage(strMove)
                 movesCount+=1
                 if(rules.IsCheckmate(piecesMatrix,playerColor)):
+                        drawMatrix()
+                        fill(spritesMatrix)
+                        pygame.display.update()                    
                         winnerColor=AIColor
                         endGame = True
                         drawInfo(endGame,winnerColor)
@@ -537,7 +540,7 @@ def execute():
         if(catched):
             gameDisplay.blit(cyanSquare,(iniX,iniY));
             for move in posibleMoves:
-                gameDisplay.blit(cyanSquare,(gameMatrix[move[0]][move[1]]));    
+                gameDisplay.blit(cyanSquare,(gameMatrix[move[0]][move[1]]));
         fill(spritesMatrix)
 
 
@@ -545,7 +548,7 @@ def execute():
         pygame.display.update()
         clock.tick(60)
     time = datetime.datetime.now()
-    strOutput="Partida: "+str(time)+"\nAI: "+AIColor+"\nJugador: "+playerColor+"\n***********************\n"+log
+    strOutput="Partida: "+str(time)+"\nAI: "+AIColor+"\nJugador: "+playerColor+"\n\nGanador: "+winnerColor+"\n***********************\n"+log
     fileName ="matches//"+str(time).replace(":",".")+".txt"
     FileManager.save(fileName,strOutput)
     pygame.quit()    

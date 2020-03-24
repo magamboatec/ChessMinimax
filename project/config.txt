@@ -2,8 +2,12 @@ StartColor: Negro
 AIColor: Blanco
 pieces location
 N R g 7
-N T a 7
+N T a 1
 N D c 8
-N P a 8
+N P a 7
 B P d 2
-B R b 1
+B P c 2
+N T a 1
+B C b 1
+B A c 1
+B R d 1
