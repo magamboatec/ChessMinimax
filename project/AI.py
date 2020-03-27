@@ -11,7 +11,8 @@ class AI:
         self.beta = [(),(),inf]
         self.missedPieces =[]
 
-    def minimax(self,state,depth,playerMove,color):
+                        
+    def alphaBeta(self,state,depth,playerMove,color):
         if not playerMove:
             best = [(), (), -inf]
         else:
@@ -62,7 +63,7 @@ class AI:
                                 if best[2] < self.beta[2]:
                                     self.beta = best
 
-                        if self.beta[2]-self.alpha[2]<=0:
+                        if self.beta[2]<=self.alpha[2]:
                             if not playerMove:
                                 self.alpha = [(),(),-inf]
                             else:
@@ -73,13 +74,57 @@ class AI:
         else:
             self.beta = [(),(),inf]
         return best
-                        
-       
+    
+    def minimax(self,state,depth,playerMove,color):
+        if not playerMove:
+            best = [(), (), -inf]
+        else:
+            best = [(), (), +inf]
+
+        if depth == 0:
+            if 'N' in color:
+                color = "Blanco"
+            else:
+                color = "Negro"
+            value = self.getStateValue(state,color)
+            return [(), (), value]
+
+        for row in range(8):
+            for col in range(8):
+                if color[0] in state[row][col]:
+                    for move in self.rules.GetListOfValidMoves(state,color,(row,col)):
+                        stateCopy=copyBoard(state)
+                        x, y = move[0], move[1]
+                        stateCopy[x][y] = state[row][col]
+                        stateCopy[row][col]=""
+                        if('N' in color):
+                            score = self.minimax(stateCopy,depth-1,not playerMove,"Blanco")
+                        else:
+                            score = self.minimax(stateCopy,depth-1,not playerMove,"Negro")   
+                        score[0], score[1] = (row,col),(x,y)
+                        rand = random.randint(0, 100)
+                        if not playerMove:
+                            if(rand>85):
+                                if score[2] >= best[2]:
+                                    best = score  # max value
+                            else:
+                                if score[2] > best[2]:
+                                    best = score  # max value
+                        else:
+                            if(rand>85):
+                                if score[2] <= best[2]:
+                                    best = score  # min value
+                            else:
+                                if score[2] < best[2]:
+                                    best = score  # min value
+
+        return best
+    
     def play(self,board,color):
         state=copyBoard(board)
-        #start_time = time.time()
-        move=self.minimax(state,3,False,color)
-        #print("--- %s seconds ---" % (time.time() - start_time))
+        start_time = time.time()
+        move=self.alphaBeta(state,3,False,color)
+        print("--- %s seconds ---" % (time.time() - start_time))
         self.alpha = [(),(),-inf]
         self.beta = [(),(),inf]
         
@@ -104,7 +149,7 @@ class AI:
             enemyColFull="Negro"       
         res=0
         res+=self.getStateValueAux(state,myColFull,enemyColFull)        
-        res-=(self.getStateValueAux(state,enemyColFull,myColFull))*(1/2)
+        res-=(self.getStateValueAux(state,enemyColFull,myColFull))*(4/5)
         return res
     
     def getStateValueAux(self,state,myCol,enemyCol):

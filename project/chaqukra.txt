@@ -1,0 +1,6 @@
+Partida: 2020-03-26 15:18:29.269307
+AI: Blanco
+Jugador: Negro
+
+Ganador: Partida sin concluir
+***********************

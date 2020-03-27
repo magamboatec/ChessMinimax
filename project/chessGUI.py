@@ -8,12 +8,13 @@ from endWindow import endWindow
 import datetime
 import tkinter as tk
 from tkinter import ttk
+import time
 
 pygame.init()
 pygame.mixer.init()
-music=pygame.mixer.music.load("sounds//file.mp3")
+music=pygame.mixer.music.load("sounds//fileLong.mp3")
 catchSound=pygame.mixer.Sound("sounds//catch.wav")
-pygame.mixer.music.set_volume(0.1)
+pygame.mixer.music.set_volume(0.3)
 catchSound.set_volume(0.2)
 pygame.mixer.music.play(-1)
 
@@ -49,6 +50,9 @@ bordeImg = pygame.transform.scale(pygame.image.load("images//borde.png"),(690,69
 fondoImg = pygame.image.load("images//fondo.jpg")
 paperSheetImg = pygame.transform.scale(pygame.image.load("images//paperSheet.png"),(int(423*1.2),int(595*1.2)))
 plumaImg = pygame.image.load("images//pluma.png")
+muteImg =  pygame.transform.scale(pygame.image.load("images//mute.png"),(75,75))
+unmuteImg =  pygame.transform.scale(pygame.image.load("images//unmute.png"),(75,75))
+replayImg = pygame.transform.scale(pygame.image.load("images//replay2.png"),(70,70))
 
 blackPieces = [negReyImg,negTorImg,negCabImg,negAlfImg,negDamImg,negPeoImg]
 whitePieces = [blaReyImg,blaTorImg,blaCabImg,blaAlfImg,blaDamImg,blaPeoImg]
@@ -83,6 +87,8 @@ piecesMatrix = [["","","","","","","",""],
 missedPiecesPlayer = []
 
 gameDisplay.blit(fondoImg,(0,0))
+replaySurface = gameDisplay.blit(replayImg,(730,270))
+muteSurface = gameDisplay.blit(unmuteImg,(730,180))
 gameDisplay.blit(bordeImg,(30,30))
 boardSurface = gameDisplay.blit(paperSheetImg,(800,0))
 gameDisplay.blit(plumaImg,(990,150))
@@ -176,12 +182,12 @@ def drawMatrix():
         control= not(control)
             
 #coloca las piesas
-def fill(matrix):
+def fill(spritesTemp,piecesTemp):
     for fil in range(8):
         for col in range(8):
-            sprite=spritesMatrix[fil][col]
+            sprite=spritesTemp[fil][col]
             pos = gameMatrix[fil][col]
-            piece = piecesMatrix[fil][col]
+            piece = piecesTemp[fil][col]
             if sprite!="":
                 if('P' in piece):
                     gameDisplay.blit(sprite,(pos[0]+12,pos[1]+25))
@@ -210,9 +216,9 @@ def buscarIndice(xIn,yIn):
 def roundBy75(x):
     return int(x) - int(x) % 75
 
-def moveAnimation(sprite,x,y,xMeta,yMeta,tempMatrix):
+def moveAnimation(sprite,x,y,xMeta,yMeta,spritesTemp,piecesTemp,tick):
     count = 0
-    fill(tempMatrix)
+    fill(spritesTemp,piecesTemp)
     while x!=xMeta or y!=yMeta:
         if x<xMeta:
             x+=5
@@ -223,19 +229,19 @@ def moveAnimation(sprite,x,y,xMeta,yMeta,tempMatrix):
         elif y>yMeta:
             y-=5
         drawMatrix()
-        fill(tempMatrix)
+        fill(spritesTemp,piecesTemp)
         gameDisplay.blit(sprite,(x+5,y+5))
         pygame.display.update()
-        clock.tick(100)
+        clock.tick(tick)
         count+=1
         
 def printM(matrix):
     for i in matrix:
         for j in i:
             if j=="":
-                print("__", end=" ")
+                print("_", end=" ")
             else:
-                print(j,end=" ")
+                print("1",end=" ")
         print()
 
 def locate(matrix):
@@ -343,11 +349,7 @@ def drawInfo(endGame,winnerColor):
         gameDisplay.blit(text, (1050,110))         
         text = font.render("Ganador: "+winnerColor, 1, (20, 20, 20))
         gameDisplay.blit(text, (1050,130))
-        
-        main_window = tk.Tk()
-        app = endWindow(main_window,("Ganador: "+winnerColor))
-        main_window.attributes('-topmost', True)
-        main_window.mainloop()        
+               
     elif playerMove:
         text = font.render("Juega: "+playerColor, 1, (20, 20, 20))
         gameDisplay.blit(text, (1050,110))
@@ -355,7 +357,12 @@ def drawInfo(endGame,winnerColor):
         text = font.render("Juega:"+AIColor, 1, (20, 20, 20))
         gameDisplay.blit(text, (1050,110))
     
-       
+def endGameMessage(winnerColor):
+        main_window = tk.Tk()
+        app = endWindow(main_window,("Ganador: "+winnerColor))
+        main_window.attributes('-topmost', True)
+        main_window.mainloop()     
+    
 """
 ciclo de ejecucion
 """
@@ -377,6 +384,7 @@ def execute():
     AICol=FileManager.getAIColor()
     inteligence = AI()
     posibleMoves = []
+    lastMove=[]
     if(AICol==startCol):
         playerMove=False
     else:
@@ -404,14 +412,39 @@ def execute():
                     done = True
                 elif(event.key==109 or event.key==32):
                     if(isMusicPlaying):
-                        pygame.mixer.music.stop()
+                        pygame.mixer.music.pause()
                         isMusicPlaying=False
                     else:
-                        pygame.mixer.music.play(-1)
+                        pygame.mixer.music.unpause()
                         isMusicPlaying=True
-                
+                elif(event.key ==  114):
+                    if lastMove!=[]:
+                        drawMatrix()
+                        moveAnimation(lastMove[0],lastMove[1],lastMove[2],lastMove[3],lastMove[4],lastMove[5],lastMove[6],50)
+                        
             if event.type == pygame.MOUSEBUTTONDOWN:
-                
+                if replaySurface.collidepoint(pygame.mouse.get_pos()):
+                    if lastMove!=[]:
+                        drawMatrix()
+                        moveAnimation(lastMove[0],lastMove[1],lastMove[2],lastMove[3],lastMove[4],lastMove[5],lastMove[6],50)
+                        
+                if muteSurface.collidepoint(pygame.mouse.get_pos()):
+                    gameDisplay.blit(fondoImg,(0,0))
+                    drawMatrix()
+                    fill(spritesMatrix,piecesMatrix)
+                    drawInfo(endGame,winnerColor)
+                    drawMarkets()
+                    textBox.Draw()
+                    gameDisplay.blit(replayImg,(730,270))
+                    if(isMusicPlaying):
+                        gameDisplay.blit(muteImg,(720,180))
+                        pygame.mixer.music.pause()
+                        isMusicPlaying=False
+                    else:
+                        gameDisplay.blit(unmuteImg,(730,180))
+                        pygame.mixer.music.unpause()
+                        isMusicPlaying=True
+                        
                 if(event.button== 4):
                     if(boardSurface.collidepoint(pygame.mouse.get_pos())):
                         textBox.MoveUp()
@@ -451,7 +484,7 @@ def execute():
                             piecesMatrix[iniPosI][iniPosJ]=""
                             if(AIColor[0] in piecesMatrix[loc[0]][loc[1]] and not('P' in piecesMatrix[loc[0]][loc[1]])):
                                 inteligence.missedPieces.append(piecesMatrix[loc[0]][loc[1]])
-                            moveAnimation(sprite,iniX,iniY,coorX,coorY,spritesMatrix)
+                            moveAnimation(sprite,iniX,iniY,coorX,coorY,spritesMatrix,piecesMatrix,100)
                             spritesMatrix[loc[0]][loc[1]]=sprite
                             piecesMatrix[loc[0]][loc[1]]=piece
                             strMove = str(movesCount)+". "+piece+"  "+converIndCol(iniPosJ)+":"+converIndFil(iniPosI)+" -> "+converIndCol(loc[1])+":"+converIndFil(loc[0])
@@ -482,11 +515,12 @@ def execute():
                                     missedPiecesPlayer.remove(app.name)
                             movesCount+=1
                             drawMatrix()
-                            fill(spritesMatrix)
+                            fill(spritesMatrix,piecesMatrix)
                             pygame.display.update()
                             if(rules.IsCheckmate(piecesMatrix,AIColor)):
                                     winnerColor=playerColor
                                     endGame = True
+                                    endGameMessage(winnerColor)
                                     drawInfo(endGame,winnerColor)
                                     textBox.Draw()
 
@@ -494,10 +528,12 @@ def execute():
 
 
             #--- computer move
+            
             if(not playerMove and not endGame):
+                
                 move = inteligence.play(piecesMatrix,AIColor)
                 if(move[2]<-10000):
-                    print("**forced mate**")
+                    print("**forced checkmate**")
                     winnerColor=playerColor
                     endGame = True
                     drawInfo(endGame,winnerColor)
@@ -508,12 +544,13 @@ def execute():
                 piece = piecesMatrix[iniPos[0]][iniPos[1]]
                 iniCoord = gameMatrix[iniPos[0]][iniPos[1]]
                 finCoord = gameMatrix[finPos[0]][finPos[1]]
-
+                copiedMatrix = copyMatrix(spritesMatrix) 
                 spritesMatrix[iniPos[0]][iniPos[1]]=""
                 piecesMatrix[iniPos[0]][iniPos[1]]=""                    
                 if(playerColor[0] in piecesMatrix[finPos[0]][finPos[1]] and not('P' in piecesMatrix[finPos[0]][finPos[1]])):
-                    missedPiecesPlayer.append(piecesMatrix[finPos[0]][finPos[1]])                                    
-                moveAnimation(sprite,iniCoord[0],iniCoord[1],finCoord[0],finCoord[1],spritesMatrix)
+                    missedPiecesPlayer.append(piecesMatrix[finPos[0]][finPos[1]])
+                lastMove=[sprite,iniCoord[0],iniCoord[1],finCoord[0],finCoord[1],copyMatrix(spritesMatrix),copyMatrix(piecesMatrix)]    
+                moveAnimation(sprite,iniCoord[0],iniCoord[1],finCoord[0],finCoord[1],spritesMatrix,piecesMatrix,100)
                 spritesMatrix[finPos[0]][finPos[1]]=sprite
                 piecesMatrix[finPos[0]][finPos[1]]=piece
                 if("BP" == piece and finPos[0]==0 ) or ("NP" == piece and finPos[0]==7):
@@ -528,10 +565,11 @@ def execute():
                 movesCount+=1
                 if(rules.IsCheckmate(piecesMatrix,playerColor)):
                         drawMatrix()
-                        fill(spritesMatrix)
+                        fill(spritesMatrix,piecesMatrix)
                         pygame.display.update()                    
                         winnerColor=AIColor
                         endGame = True
+                        endGameMessage(winnerColor)
                         drawInfo(endGame,winnerColor)
                         textBox.Draw() 
                        
@@ -541,12 +579,12 @@ def execute():
             gameDisplay.blit(cyanSquare,(iniX,iniY));
             for move in posibleMoves:
                 gameDisplay.blit(cyanSquare,(gameMatrix[move[0]][move[1]]));
-        fill(spritesMatrix)
+        fill(spritesMatrix,piecesMatrix)
 
 
         
         pygame.display.update()
-        clock.tick(60)
+        clock.tick(50)
     time = datetime.datetime.now()
     strOutput="Partida: "+str(time)+"\nAI: "+AIColor+"\nJugador: "+playerColor+"\n\nGanador: "+winnerColor+"\n***********************\n"+log
     fileName ="matches//"+str(time).replace(":",".")+".txt"
