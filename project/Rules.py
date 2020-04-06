@@ -170,7 +170,7 @@ class Rules:
                 if abs(col_diff) == 0 and abs(row_diff) == 1:
                     return True
                 if abs(col_diff) == 1 and abs(row_diff) == 1:
-                    return True                 
+                    return True
         else:
             return False
 

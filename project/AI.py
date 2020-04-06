@@ -10,112 +10,75 @@ class AI:
         self.alpha = [(),(),-inf]
         self.beta = [(),(),inf]
         self.missedPieces =[]
-
-    def minimax(self,state,depth,playerMove,color):
-        if not playerMove:
-            best = [(), (), -inf]
+        self.color=""
+           
+    def negaMin(self,state,depth,color,alpha,beta):
+        if 'N' in color:
+            enemyColor="Blanco"
         else:
-            best = [(), (), +inf]
-
-        if depth == 0:
-            if 'N' in color:
-                color = "Blanco"
-            else:
-                color = "Negro"
-            value = self.getStateValue(state,color)
-            return [(), (), value]
-
+            enemyColor="Negro"        
+        if(depth==0):
+            return [(),(),self.getStateValue(state,enemyColor)]
+        best=[(),(),inf-1]
         for row in range(8):
             for col in range(8):
                 if color[0] in state[row][col]:
-                    for move in self.rules.GetListOfValidMoves(state,color,(row,col)):
-                        stateCopy=copyBoard(state)
+                    moves = self.rules.GetListOfValidMoves(state,color,(row,col))
+                    for move in moves:
                         x, y = move[0], move[1]
-                        stateCopy[x][y] = state[row][col]
-                        stateCopy[row][col]=""
-                        if('N' in color):
-                            score = self.minimax(stateCopy,depth-1,not playerMove,"Blanco")
-                        else:
-                            score = self.minimax(stateCopy,depth-1,not playerMove,"Negro")   
-                        score[0], score[1] = (row,col),(x,y)
-                        rand = random.randint(0, 100)
-                        if not playerMove:
-                            if(rand>85):
-                                if score[2] >= best[2]:
-                                    best = score  # max value
-                                if best[2] >= self.alpha[2]:
-                                    self.alpha = best
-                            else:
-                                if score[2] > best[2]:
-                                    best = score  # max value
-                                if best[2] > self.alpha[2]:
-                                    self.alpha = best
-                        else:
-                            if(rand>85):
-                                if score[2] <= best[2]:
-                                    best = score  # min value
-                                if best[2] <= self.beta[2]:
-                                    self.beta = best
-                            else:
-                                if score[2] < best[2]:
-                                    best = score  # min value
-                                if best[2] < self.beta[2]:
-                                    self.beta = best
-
-                        if self.beta[2]-self.alpha[2]<=0:
-                            if not playerMove:
-                                self.alpha = [(),(),-inf]
-                            else:
-                                self.beta = [(),(),inf]
-                            return best
-        if not playerMove:
-            self.alpha = [(),(),-inf]
-        else:
-            self.beta = [(),(),inf]
-        return best
-                        
-       
-    def play(self,board,color):
-        state=copyBoard(board)
-        #start_time = time.time()
-        move=self.minimax(state,3,False,color)
-        #print("--- %s seconds ---" % (time.time() - start_time))
-        self.alpha = [(),(),-inf]
-        self.beta = [(),(),inf]
-        
-        if(move[0] == () or move[2]==-inf):
-            fixMoves=[]
-            for row in range(8):
-                for col in range(8):
-                    if color[0] in board[row][col]:
-                        moves=self.rules.GetListOfValidMoves(board,color,(row,col))
-                        for m in self.rules.GetListOfValidMoves(board,color,(row,col)):
-                            fixMoves.append([(row,col),(m[0],m[1]),0])
-            move=random.choice(fixMoves)
-            
+                        score=[(),(),0]
+                        newState=self.doMove(state,(row,col),(x,y))
+                        score[2] = -self.negaMin(newState,depth-1,enemyColor,[(),(),-beta[2]],[(),(),-alpha[2]])[2]       
+                        score[0], score[1] = (row,col),(x,y)      
+                        if(score[2]<best[2]):
+                            best=score
+                        if(best[2]<alpha[2]):
+                            alpha=best
+                        if(best[2]<=beta[2]):
+                            break                          
                             
-        #print(move)    
+        return best
+
+    def play(self,board,color):
+        self.color = color
+        state=copyBoard(board)
+        start_time = time.time()
+        depth=3
+        while depth>0:
+            move = self.negaMin(state,depth,color,[(),(),inf],[(),(),-inf])
+            if move[0]!=() and move[2]!=-inf:
+                break
+            depth-=1
+        print("--- %s seconds ---" % (time.time() - start_time))
+        print(move)   
         return move
+    
 
     def getStateValue(self,state,myColFull):
-        if myColFull=="Negro":
-            enemyColFull="Blanco"
+            
+        if 'N' in myColFull:
+            enemyCol = 'B'
+            myCol = 'N'
         else:
-            enemyColFull="Negro"       
-        res=0
-        res+=self.getStateValueAux(state,myColFull,enemyColFull)        
-        res-=(self.getStateValueAux(state,enemyColFull,myColFull))*(4/5)
-        return res
-    
-    def getStateValueAux(self,state,myCol,enemyCol):
+            enemyCol = 'N'
+            myCol = 'B'      
+        bishopCount = 0 
         res=0
         for row in range(8):
             for col in range(8):
-                if(myCol[0] in state[row][col]):
-                    res+=self.getPieceValue(state[row][col],row)
+                piece=state[row][col]
+                if(myCol in piece):
+                    res+=self.getPieceValue(piece,row,col,state)
+                    if('A' in piece):
+                        bishopCount+=1
+                elif(enemyCol in piece):
+                    res-=self.getPieceValue(piece,row,col,state)*0.5
+        if(bishopCount==2):
+            res+=25
         return res
     
-    def getMove(self,board,posIni,posFin):
+    
+    def doMove(self,board,posIni,posFin):
         tempBoard = copyBoard(board)
         piece = tempBoard[posIni[0]][posIni[1]] 
         tempBoard[posIni[0]][posIni[1]] = ""
@@ -123,42 +86,76 @@ class AI:
         return tempBoard
 
 
-    def getMaxMissedPiece(self,color):
-        values = []
-        if(len(self.missedPieces)==0):
-            if ('N' in color):
-                return "NP"
-            else:
-                return "BP"
-        for i in range(len(self.missedPieces)):
-            values.append(self.getPieceValue(self.missedPieces[i],0))
-        
-        maxInd=values.index(max(values))
-        newPiece =self.missedPieces[maxInd]
-        self.missedPieces.remove(newPiece)
-        return newPiece
 
-    def getPieceValue(self,piece,row):
+    def getPieceValue(self,piece,row,col,state):
+        if('N' in piece):
+            myColor = 'N'
+        else:
+            myColor = 'B'
+            
         if ('P' in piece):
-            if len(self.missedPieces)>0:
-                if('N' in piece):
-                    if(row==0):
-                        return 5
-                    return 1+((row)*0.1)
-                else:
-                    if(row==8):
-                        return 5                    
-                    return 1+((8-row)*0.1)
+            res = 100
+            if('N'==myColor):
+                res+=row
+                if(row==7):
+                    return 900
+                if(self.rules.IsClearPath(state,(row,col),(7,col))):
+                    res+=20                
             else:
-                return 1
-        elif('A' in piece) or ('C' in piece) :
-            return 3
+                res+=7-row
+                if(row==0):
+                    return 900
+                if(self.rules.IsClearPath(state,(row,col),(0,col))):
+                    res+=20
+            if(isCenter(row,col)):
+                res+=40
+            return res
+        elif('C' in piece) :
+            res = 300
+            if(isCenter(row,col)):
+                res+=20            
+            return res
+        elif('A' in piece):
+            res = 310
+            if(isCenter(row,col)):
+                res+=20
+            if('N'==myColor):
+                if(row==0):
+                    res-=15
+            else:
+                if(row==7):
+                    res-=15
+            return res
         elif('T' in piece):
-            return 5
+            res = 500
+            if('N'==myColor):
+                if(row==6):
+                    res+=20
+            else:
+                if(row==1):
+                    res+=20            
+            return res
         elif ('D' in piece):
-            return 9
+            res =  900
+            if(isCenter(row,col)):
+                res+=30            
+            return res
         else:
             return 0
+def isCenter(row,col):
+    if (row==3 and (col==3 or col==4)):
+        return True
+    elif (row==4 and (col==3 or col==4)):
+        return True
+    else:
+        return False
+    
+def getMaxState(states):
+    best = states[0]
+    for i in states:
+        if(i[2]>best[2]):
+            best=i
+    return best        
 
 def copyBoard(board):
     newBoard = []

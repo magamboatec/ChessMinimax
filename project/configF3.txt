@@ -1,0 +1,13 @@
+StartColor: Blanco
+AIColor: Blanco
+pieces location
+N R b 4
+N P c 4
+N P f 4
+N P g 5
+N P h 4
+B R b 2
+B P a 2
+B P f 3
+B P g 2
+B P h 3

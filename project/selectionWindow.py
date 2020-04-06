@@ -25,7 +25,11 @@ class selectionWindow():
         self.name =""
         
         
-    def setItems(self,items):
+    def setItems(self,color):
+        if 'N' in color:
+            items=["ND","NT","NC","NA"]
+        else:
+            items=["BD","BT","BC","BA"]
         for i in range(len(items)):
             tempImg = self.getImg(items[i])
             Button(self.root, text=items[i] , image = tempImg,command=lambda pName =items[i]: self.onSelect(pName)).grid(row=0, column=i)

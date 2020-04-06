@@ -34,7 +34,7 @@ AIColor = "Negro"
 negReyImg = pygame.transform.scale(pygame.image.load("images//NR.png"),(75,75))
 blaReyImg = pygame.transform.scale(pygame.image.load("images//BR.png"),(75,75))
 negTorImg = pygame.transform.scale(pygame.image.load("images//NT.png"),(55,55))
-blaTorImg = pygame.transform.scale(pygame.image.load("images//BT.png"),(55,55))
+blaTorImg = pygame.transform.scale(pygame.image.load("images//BT.png"),(55,55)) 
 negCabImg = pygame.transform.scale(pygame.image.load("images//NC.png"),(60,60))
 blaCabImg = pygame.transform.scale(pygame.image.load("images//BC.png"),(60,60))
 negAlfImg = pygame.transform.scale(pygame.image.load("images//NA.png"),(65,65))
@@ -84,7 +84,6 @@ piecesMatrix = [["","","","","","","",""],
                 ["","","","","","","",""],
                 ["","","","","","","",""]]
 
-missedPiecesPlayer = []
 
 gameDisplay.blit(fondoImg,(0,0))
 replaySurface = gameDisplay.blit(replayImg,(730,270))
@@ -175,9 +174,9 @@ def drawMatrix():
     for i in gameMatrix:
         for j in i:
             if control:
-                gameDisplay.blit(brownSquare,j)
-            else:
                 gameDisplay.blit(whiteSquare,j)
+            else:
+                gameDisplay.blit(brownSquare,j)
             control= not(control)    
         control= not(control)
             
@@ -362,12 +361,12 @@ def endGameMessage(winnerColor):
         app = endWindow(main_window,("Ganador: "+winnerColor))
         main_window.attributes('-topmost', True)
         main_window.mainloop()     
-    
+   
 """
 ciclo de ejecucion
 """
 def execute():
-    global spritesMatrix,piecesMatrix,playerMove,movesCount,log,playerColor,AIColor,missedPiecesPlayer
+    global spritesMatrix,piecesMatrix,playerMove,movesCount,log,playerColor,AIColor
     catched= False #permite saber si ya ha elegido una pieza
     sprite=""
     piece =""
@@ -396,8 +395,6 @@ def execute():
     else:
         AIColor="Negro"
         playerColor="Blanco"
-    inteligence.missedPieces=FileManager.getMissedPieces(iniMatrix,AIColor)
-    missedPiecesPlayer=FileManager.getMissedPieces(iniMatrix,playerColor)
     drawInfo(endGame,winnerColor)
     textBox.Draw()
     isMusicPlaying=True
@@ -479,11 +476,10 @@ def execute():
                             catched=True
                             posibleMoves = rules.GetListOfValidMoves(piecesMatrix,playerColor,(iniPosI,iniPosJ))
                     else:
-                        if(rules.IsLegalMove(piece,piecesMatrix,(iniPosI,iniPosJ),(loc[0],loc[1])) and not(rules.DoesMovePutPlayerInCheck(piecesMatrix,playerColor,(iniPosI,iniPosJ),(loc[0],loc[1])))):   
+                        if(rules.IsLegalMove(piece,piecesMatrix,(iniPosI,iniPosJ),(loc[0],loc[1]))
+                           and not(rules.DoesMovePutPlayerInCheck(piecesMatrix,playerColor,(iniPosI,iniPosJ),(loc[0],loc[1])))):   
                             spritesMatrix[iniPosI][iniPosJ]=""
                             piecesMatrix[iniPosI][iniPosJ]=""
-                            if(AIColor[0] in piecesMatrix[loc[0]][loc[1]] and not('P' in piecesMatrix[loc[0]][loc[1]])):
-                                inteligence.missedPieces.append(piecesMatrix[loc[0]][loc[1]])
                             moveAnimation(sprite,iniX,iniY,coorX,coorY,spritesMatrix,piecesMatrix,100)
                             spritesMatrix[loc[0]][loc[1]]=sprite
                             piecesMatrix[loc[0]][loc[1]]=piece
@@ -503,16 +499,14 @@ def execute():
                             if("BP" == piece and loc[0]==0 ) or ("NP" == piece and loc[0]==7 ) :
                                 main_window = tk.Tk()
                                 app = selectionWindow(main_window)
-                                app.setItems(missedPiecesPlayer)
+                                app.setItems(playerColor)
                                 main_window.attributes('-topmost', True)
                                 main_window.mainloop()
-                                
-                                            
                                 
                                 if(app.name!=""):
                                     spritesMatrix[loc[0]][loc[1]]=getSprite(app.name)
                                     piecesMatrix[loc[0]][loc[1]]=app.name
-                                    missedPiecesPlayer.remove(app.name)
+                                    
                             movesCount+=1
                             drawMatrix()
                             fill(spritesMatrix,piecesMatrix)
@@ -523,7 +517,8 @@ def execute():
                                     endGameMessage(winnerColor)
                                     drawInfo(endGame,winnerColor)
                                     textBox.Draw()
-
+                        else:
+                            catched=False
                                    
 
 
@@ -547,14 +542,16 @@ def execute():
                 copiedMatrix = copyMatrix(spritesMatrix) 
                 spritesMatrix[iniPos[0]][iniPos[1]]=""
                 piecesMatrix[iniPos[0]][iniPos[1]]=""                    
-                if(playerColor[0] in piecesMatrix[finPos[0]][finPos[1]] and not('P' in piecesMatrix[finPos[0]][finPos[1]])):
-                    missedPiecesPlayer.append(piecesMatrix[finPos[0]][finPos[1]])
+
                 lastMove=[sprite,iniCoord[0],iniCoord[1],finCoord[0],finCoord[1],copyMatrix(spritesMatrix),copyMatrix(piecesMatrix)]    
                 moveAnimation(sprite,iniCoord[0],iniCoord[1],finCoord[0],finCoord[1],spritesMatrix,piecesMatrix,100)
                 spritesMatrix[finPos[0]][finPos[1]]=sprite
                 piecesMatrix[finPos[0]][finPos[1]]=piece
                 if("BP" == piece and finPos[0]==0 ) or ("NP" == piece and finPos[0]==7):
-                    pieceName=inteligence.getMaxMissedPiece(AIColor)
+                    if('N' in AIColor):
+                        pieceName="ND"
+                    else:
+                        pieceName="BD"
                     spritesMatrix[finPos[0]][finPos[1]]=getSprite(pieceName)
                     piecesMatrix[finPos[0]][finPos[1]]=pieceName
                 strMove = str(movesCount)+". "+piece+"  "+converIndCol(iniPos[1])+":"+converIndFil(iniPos[0])+" -> "+converIndCol(finPos[1])+":"+converIndFil(finPos[0])
