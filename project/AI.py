@@ -29,13 +29,13 @@ class AI:
                         score=[(),(),0]
                         newState=self.doMove(state,(row,col),(x,y))
                         score[2] = -self.negaMin(newState,depth-1,enemyColor,[(),(),-beta[2]],[(),(),-alpha[2]])[2]       
-                        score[0], score[1] = (row,col),(x,y)      
+                        score[0], score[1] = (row,col),(x,y)
                         if(score[2]<best[2]):
                             best=score
                         if(best[2]<alpha[2]):
                             alpha=best
                         if(best[2]<=beta[2]):
-                            break                          
+                            break                                
                             
         return best
 
@@ -43,14 +43,13 @@ class AI:
         self.color = color
         state=copyBoard(board)
         start_time = time.time()
-        depth=3
+        depth=5
         while depth>0:
             move = self.negaMin(state,depth,color,[(),(),inf],[(),(),-inf])
-            if move[0]!=() and move[2]!=-inf:
+            if move[0]!=() and move[2]!=+inf:
                 break
             depth-=1
         print("--- %s seconds ---" % (time.time() - start_time))
-        print(move)   
         return move
     
 
@@ -80,7 +79,14 @@ class AI:
     
     def doMove(self,board,posIni,posFin):
         tempBoard = copyBoard(board)
-        piece = tempBoard[posIni[0]][posIni[1]] 
+        piece = tempBoard[posIni[0]][posIni[1]]
+        if('P'in piece):
+            if('N' in piece):
+                if(posFin[0]==7):
+                    piece="ND"
+            else:   
+                if(posFin[0]==0):
+                    piece="BD"
         tempBoard[posIni[0]][posIni[1]] = ""
         tempBoard[posFin[0]][posFin[1]] = piece
         return tempBoard
@@ -100,20 +106,119 @@ class AI:
                 if(row==7):
                     return 900
                 if(self.rules.IsClearPath(state,(row,col),(7,col))):
-                    res+=20                
+                    res+=20
+                if(col!=0):
+                    if ('N' in state[row+1][col-1]):
+                        res+=10
+                if(col!=7):
+                    if('N' in state[row+1][col+1]):
+                        res+=10                                                        
             else:
-                res+=7-row
+                res+=(7-row)
                 if(row==0):
-                    return 900
+                    return 900                
                 if(self.rules.IsClearPath(state,(row,col),(0,col))):
                     res+=20
+                if(col!=0):
+                    if ('B' in state[row-1][col-1]):
+                        res+=10
+                if(col!=7):
+                    if('B' in state[row-1][col+1]):
+                        res+=10                        
             if(isCenter(row,col)):
                 res+=40
+            return res
+        elif('R' in piece):
+            res=0
+            if(col!=0):
+                if(myColor in state[row][col-1]):
+                    res+=10
+                elif('' in state[row][col-1]):
+                    res+=5                    
+                if(row!=0):
+                    if(myColor in state[row-1][col-1]):
+                        res+=10
+                    elif('' in state[row-1][col-1]):
+                        res+=5
+                if(row!=7):
+                    if(myColor in state[row+1][col-1]):
+                        res+=10
+                    elif('' in state[row+1][col-1]):
+                        res+=5                        
+            if(col!=7):
+                if(myColor in state[row][col+1]):
+                    res+=10
+                elif('' in state[row][col+1]):
+                    res+=5
+                if(row!=0):
+                    if(myColor in state[row-1][col+1]):
+                        res+=10
+                    elif('' in state[row-1][col+1]):
+                        res+=5                        
+                if(row!=7):
+                    if(myColor in state[row+1][col+1]):
+                        res+=10
+                    elif('' in state[row+1][col+1]):
+                        res+=5                        
+            if(row!=7):
+                if(myColor in state[row+1][col]):
+                    res+=10
+                elif('' in state[row+1][col]):
+                    res+=5
+            if(row!=0):
+                if(myColor in state[row-1][col]):
+                    res+=10
+                elif('' in state[row-1][col]):
+                    res+=5                    
             return res
         elif('C' in piece) :
             res = 300
             if(isCenter(row,col)):
-                res+=20            
+                res+=20
+            if(col!=7 and col!=6):
+                if(row!=0):
+                    if(myColor in state[row-1][col+2]):
+                        res+=10
+                    elif('' in state[row-1][col+2]):
+                        res+=5
+                if(row!=7):
+                    if(myColor in state[row+1][col+2]):
+                        res+=10
+                    elif('' in state[row+1][col+2]):
+                        res+=5
+            if(col!=0 and col!=1):
+                if(row!=0):
+                    if(myColor in state[row-1][col-2]):
+                        res+=10
+                    elif('' in state[row-1][col-2]):
+                        res+=5                        
+                if(row!=7):
+                    if(myColor in state[row+1][col-2]):
+                        res+=10
+                    elif('' in state[row+1][col-2]):
+                        res+=5
+            if(row!=0 and row!=1):
+                if(col!=0):
+                    if(myColor in state[row-2][col-1]):
+                        res+=10
+                    elif('' in state[row-2][col-1]):
+                        res+=5                        
+                if(col!=7):
+                    if(myColor in state[row-2][col+1]):
+                        res+=10
+                    elif('' in state[row-2][col+1]):
+                        res+=5                        
+            if(row!=7 and row!=6):
+                if(col!=0):
+                    if(myColor in state[row+2][col-1]):
+                        res+=10
+                    elif('' in state[row+2][col-1]):
+                        res+=5                        
+                if(col!=7):
+                    if(myColor in state[row+2][col+1]):
+                        res+=10
+                    elif('' in state[row+2][col+1]):
+                        res+=5
             return res
         elif('A' in piece):
             res = 310

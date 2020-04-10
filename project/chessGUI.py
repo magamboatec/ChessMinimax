@@ -405,8 +405,14 @@ def execute():
             if event.type == pygame.QUIT:
                 done = True
             if event.type == pygame.KEYDOWN:
+                
                 if(event.key==27):
                     done = True
+                if(event.key==110):
+                    pygame.mixer.music.play(-1)
+                    execute()
+                    done = True
+                    break;
                 elif(event.key==109 or event.key==32):
                     if(isMusicPlaying):
                         pygame.mixer.music.pause()
@@ -468,11 +474,9 @@ def execute():
                         sprite= spritesMatrix[loc[0]][loc[1]]
                         piece = piecesMatrix[loc[0]][loc[1]]
                         if((sprite in whitePieces )and ('B' in playerColor) and (sprite!="")):
-                            catchSound.play()
                             catched=True
                             posibleMoves = rules.GetListOfValidMoves(piecesMatrix,playerColor,(iniPosI,iniPosJ))
                         elif((sprite in blackPieces )and ('N' in playerColor) and (sprite!="")):
-                            catchSound.play()
                             catched=True
                             posibleMoves = rules.GetListOfValidMoves(piecesMatrix,playerColor,(iniPosI,iniPosJ))
                     else:
@@ -517,6 +521,7 @@ def execute():
                                     endGameMessage(winnerColor)
                                     drawInfo(endGame,winnerColor)
                                     textBox.Draw()
+                            catchSound.play()       
                         else:
                             catched=False
                                    
@@ -527,7 +532,7 @@ def execute():
             if(not playerMove and not endGame):
                 
                 move = inteligence.play(piecesMatrix,AIColor)
-                if(move[2]<-10000):
+                if(move[2]>100000):
                     print("**forced checkmate**")
                     winnerColor=playerColor
                     endGame = True
@@ -560,6 +565,7 @@ def execute():
                 drawInfo(endGame,winnerColor)
                 drawMessage(strMove)
                 movesCount+=1
+                catchSound.play()
                 if(rules.IsCheckmate(piecesMatrix,playerColor)):
                         drawMatrix()
                         fill(spritesMatrix,piecesMatrix)

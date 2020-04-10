@@ -41,14 +41,24 @@ class Rules:
                         if self.IsLegalMove(board[fromTuple[0]][fromTuple[1]],board,fromTuple,d):
                                 if not self.DoesMovePutPlayerInCheck(board,color,fromTuple,d):
                                         legalDestinationSpaces.append(d)
+                return legalDestinationSpaces                        
+            elif('R' in board[fromTuple[0]][fromTuple[1]]):
+                legalDestinationSpaces = self.kingMoves(board,fromTuple[0],fromTuple[1])
+            elif('P' in board[fromTuple[0]][fromTuple[1]]):
+                legalDestinationSpaces= self.pawnMoves(board,fromTuple[0],fromTuple[1])
+            elif('C' in board[fromTuple[0]][fromTuple[1]]):
+                legalDestinationSpaces= self.knightMoves(board,fromTuple[0],fromTuple[1])                
             else:
                 for row in range(8):
                         for col in range(8):
                                 d = (row,col)
                                 if self.IsLegalMove(board[fromTuple[0]][fromTuple[1]],board,fromTuple,d):
-                                        if not self.DoesMovePutPlayerInCheck(board,color,fromTuple,d):
                                                 legalDestinationSpaces.append(d)
-            return legalDestinationSpaces
+            moves = []
+            for d in legalDestinationSpaces:
+                if not self.DoesMovePutPlayerInCheck(board,color,fromTuple,d):
+                    moves.append(d)
+            return moves
 	    
     def IsLegalMove(self,sprite,board,fromTuple,toTuple):
         fromSquare_r = fromTuple[0]
@@ -252,13 +262,17 @@ class Rules:
 
             kingTuple = (0,0)
             #First, get current player's king location
-            #if(var):
-             #   print("myColor",myColor)
+            kingFound = False
             for row in range(8):
                     for col in range(8):
                             piece = board[row][col]
-                            if 'R' in piece and myColor in piece:
-                                    kingTuple = (row,col)
+                            kingFound = 'R' in piece and myColor in piece
+                            if kingFound:
+                                kingTuple = (row,col)
+                                break
+                    if(kingFound):
+                        break
+                    
             #Check if any of enemy player's pieces has a legal move to current player's king
             for row in range(8):
                     for col in range(8):
@@ -268,6 +282,116 @@ class Rules:
                                             return True
             return False
         
+    def kingMoves(self,board,row,col):
+        legalMoves=[]
+        sprite=board[row][col]
+        if('N' in sprite):
+            myColor ="Negro"
+        else:
+            myColor="Blanco"
+        if(col!=0):
+            if(self.IsLegalMove(sprite,board,(row,col),(row,col-1))):
+                legalMoves.append((row,col-1))      
+            if(row!=0):
+                if(self.IsLegalMove(sprite,board,(row,col),(row-1,col-1))):
+                    legalMoves.append((row-1,col-1))                          
+            if(row!=7):
+               if(self.IsLegalMove(sprite,board,(row,col),(row+1,col-1))):
+                   legalMoves.append((row+1,col-1))           
+        if(col!=7):
+            if(self.IsLegalMove(sprite,board,(row,col),(row,col+1))):
+                legalMoves.append((row,col+1)) 
+            if(row!=0):
+                if(self.IsLegalMove(sprite,board,(row,col),(row-1,col+1))):
+                   legalMoves.append((row-1,col+1))                    
+            if(row!=7):
+               if(self.IsLegalMove(sprite,board,(row,col),(row+1,col+1))):
+                   legalMoves.append((row+1,col+1))                       
+        if(row!=7):
+            if(self.IsLegalMove(sprite,board,(row,col),(row+1,col))):
+                legalMoves.append((row+1,col))
+        if(row!=0):
+            if(self.IsLegalMove(sprite,board,(row,col),(row-1,col))):
+                legalMoves.append((row-1,col))                
+        return legalMoves
+    
+    def knightMoves(self,board,row,col):
+        legalMoves=[]
+        sprite=board[row][col]
+        if('N' in sprite):
+            myColor ="Negro"
+        else:
+            myColor="Blanco"
+        if(col!=7 and col!=6):
+            if(row!=0):
+                d=(row-1,col+2)
+                if(self.IsLegalMove(sprite,board,(row,col),d)):
+                    legalMoves.append(d)                   
+            if(row!=7):
+                d=(row+1,col+2)
+                if(self.IsLegalMove(sprite,board,(row,col),d)):
+                    legalMoves.append(d)
+        if(col!=0 and col!=1):
+            if(row!=0):
+                d=(row-1,col-2)
+                if(self.IsLegalMove(sprite,board,(row,col),d)):
+                    legalMoves.append(d)                      
+            if(row!=7):
+                d=(row+1,col-2)
+                if(self.IsLegalMove(sprite,board,(row,col),d)):
+                    legalMoves.append(d)  
+        if(row!=0 and row!=1):
+            if(col!=0):
+                d=(row-2,col-1)
+                if(self.IsLegalMove(sprite,board,(row,col),d)):
+                    legalMoves.append(d)                          
+            if(col!=7):
+                d=(row-2,col+1)
+                if(self.IsLegalMove(sprite,board,(row,col),d)):
+                    legalMoves.append(d)                                   
+        if(row!=7 and row!=6):
+            if(col!=0):
+                d=(row+2,col-1)
+                if(self.IsLegalMove(sprite,board,(row,col),d)):
+                    legalMoves.append(d)                                  
+            if(col!=7):
+                d=(row+2,col+1)
+                if(self.IsLegalMove(sprite,board,(row,col),d)):
+                    legalMoves.append(d)
+        return legalMoves
+        
+    def pawnMoves(self,board,row,col):
+        legalMoves=[]
+        sprite=board[row][col]
+        if('N' in sprite):
+            if(row!=7):
+                if(self.IsLegalMove(sprite,board,(row,col),(row+1,col))):
+                    legalMoves.append((row+1,col))
+                if(row==1):
+                    if(self.IsLegalMove(sprite,board,(row,col),(row+2,col))):
+                        legalMoves.append((row+2,col))                         
+                if(col!=0):
+                    if(self.IsLegalMove(sprite,board,(row,col),(row+1,col-1))):
+                        legalMoves.append((row+1,col-1)) 
+                if(col!=7):
+                    if(self.IsLegalMove(sprite,board,(row,col),(row+1,col+1))):
+                        legalMoves.append((row+1,col+1))
+                        
+        else:
+            if(row!=0):
+                if(self.IsLegalMove(sprite,board,(row,col),(row-1,col))):
+                    legalMoves.append((row-1,col))            
+                if(row==6):
+                    if(self.IsLegalMove(sprite,board,(row,col),(row-2,col))):
+                        legalMoves.append((row-2,col)) 
+                if(col!=0):
+                    if(self.IsLegalMove(sprite,board,(row,col),(row-1,col-1))):
+                        legalMoves.append((row-1,col-1)) 
+                if(col!=7):
+                    if(self.IsLegalMove(sprite,board,(row,col),(row-1,col+1))):
+                        legalMoves.append((row-1,col+1))                
+        return legalMoves
+    
 def printM(matrix):
     for i in matrix:
         for j in i:
