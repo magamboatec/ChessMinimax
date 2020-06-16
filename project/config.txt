@@ -1,5 +1,5 @@
 StartColor: Blanco
-AIColor: Negro
+AIColor: Blanco
 pieces location
 N R c 8
 N P e 5

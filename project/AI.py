@@ -43,13 +43,13 @@ class AI:
         self.color = color
         state=copyBoard(board)
         start_time = time.time()
-        depth=5
+        depth=4
         while depth>0:
             move = self.negaMin(state,depth,color,[(),(),inf],[(),(),-inf])
             if move[0]!=() and move[2]!=+inf:
                 break
             depth-=1
-        print("--- %s seconds ---" % (time.time() - start_time))
+        #print("--- %s seconds ---" % (time.time() - start_time))
         return move
     
 
@@ -169,8 +169,13 @@ class AI:
                 if(myColor in state[row-1][col]):
                     res+=10
                 elif('' in state[row-1][col]):
-                    res+=5                    
+                    res+=5
+            if(row==0 and col==4 and myColor=='N'):
+                res+=15
+            if(row==7 and col==4 and myColor=='B'):
+                res+=15                                
             return res
+        
         elif('C' in piece) :
             res = 300
             if(isCenter(row,col)):

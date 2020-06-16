@@ -12,7 +12,7 @@ import time
 
 pygame.init()
 pygame.mixer.init()
-music=pygame.mixer.music.load("sounds//fileLong.mp3")
+music=pygame.mixer.music.load("sounds//file.mp3")
 catchSound=pygame.mixer.Sound("sounds//catch.wav")
 pygame.mixer.music.set_volume(0.3)
 catchSound.set_volume(0.2)
@@ -30,19 +30,19 @@ rules = Rules()
 
 playerMove = True
 AIColor = "Negro"
-
-negReyImg = pygame.transform.scale(pygame.image.load("images//NR.png"),(75,75))
-blaReyImg = pygame.transform.scale(pygame.image.load("images//BR.png"),(75,75))
-negTorImg = pygame.transform.scale(pygame.image.load("images//NT.png"),(55,55))
-blaTorImg = pygame.transform.scale(pygame.image.load("images//BT.png"),(55,55)) 
-negCabImg = pygame.transform.scale(pygame.image.load("images//NC.png"),(60,60))
-blaCabImg = pygame.transform.scale(pygame.image.load("images//BC.png"),(60,60))
-negAlfImg = pygame.transform.scale(pygame.image.load("images//NA.png"),(65,65))
-blaAlfImg = pygame.transform.scale(pygame.image.load("images//BA.png"),(65,65))
-negDamImg = pygame.transform.scale(pygame.image.load("images//ND.png"),(68,68))
-blaDamImg = pygame.transform.scale(pygame.image.load("images//BD.png"),(68,68))
-negPeoImg = pygame.transform.scale(pygame.image.load("images//NP.png"),(50,50))
-blaPeoImg = pygame.transform.scale(pygame.image.load("images//BP.png"),(50,50))
+extra=20
+negReyImg = pygame.transform.scale(pygame.image.load("images//NR.png"),(75+extra,75))
+blaReyImg = pygame.transform.scale(pygame.image.load("images//BR.png"),(75+extra,75))
+negTorImg = pygame.transform.scale(pygame.image.load("images//NT.png"),(55+extra,55))
+blaTorImg = pygame.transform.scale(pygame.image.load("images//BT.png"),(55+extra,55)) 
+negCabImg = pygame.transform.scale(pygame.image.load("images//NC.png"),(60+extra,60))
+blaCabImg = pygame.transform.scale(pygame.image.load("images//BC.png"),(60+extra,60))
+negAlfImg = pygame.transform.scale(pygame.image.load("images//NA.png"),(65+extra,65))
+blaAlfImg = pygame.transform.scale(pygame.image.load("images//BA.png"),(65+extra,65))
+negDamImg = pygame.transform.scale(pygame.image.load("images//ND.png"),(68+extra,68))
+blaDamImg = pygame.transform.scale(pygame.image.load("images//BD.png"),(68+extra,68))
+negPeoImg = pygame.transform.scale(pygame.image.load("images//NP.png"),(50+extra,50))
+blaPeoImg = pygame.transform.scale(pygame.image.load("images//BP.png"),(50+extra,50))
 brownSquare = pygame.transform.scale(pygame.image.load("images//brown_square.jpg"),(75,75))
 whiteSquare = pygame.transform.scale(pygame.image.load("images//white_square.jpg"),(75,75))
 cyanSquare = pygame.transform.scale(pygame.image.load("images//blue_square.png"),(75,75))
@@ -189,15 +189,17 @@ def fill(spritesTemp,piecesTemp):
             piece = piecesTemp[fil][col]
             if sprite!="":
                 if('P' in piece):
-                    gameDisplay.blit(sprite,(pos[0]+12,pos[1]+25))
+                    gameDisplay.blit(sprite,(pos[0]+5,pos[1]+25))
                 elif('D' in piece):    
-                    gameDisplay.blit(sprite,(pos[0]+5,pos[1]+7))
+                    gameDisplay.blit(sprite,(pos[0]-6,pos[1]+7))
+                elif('R' in piece):    
+                    gameDisplay.blit(sprite,(pos[0]-6,pos[1]))                    
                 elif('A' in piece): 
-                    gameDisplay.blit(sprite,(pos[0]+6,pos[1]+10))
+                    gameDisplay.blit(sprite,(pos[0]-4,pos[1]+10))
                 elif('C' in piece): 
-                    gameDisplay.blit(sprite,(pos[0]+8,pos[1]+15))
+                    gameDisplay.blit(sprite,(pos[0]-2,pos[1]+15))
                 elif('T' in piece): 
-                    gameDisplay.blit(sprite,(pos[0]+10,pos[1]+20))
+                    gameDisplay.blit(sprite,(pos[0]-1,pos[1]+20))
                     
                 else:
                     gameDisplay.blit(sprite,pos)
